@@ -1,0 +1,23 @@
+﻿@model SMS.ViewModel.Student.StudentViewModel
+
+<div class="table-responsive">
+    <table id="studentlist" class="table table-bordered table-striped" style="text-align:center; width: 100%;">
+        <thead style="text-align:center;">
+            <tr>
+
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.StudentList.First().StudentRegNo)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.StudentList.First().FirstName)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.StudentList.First().MiddleName)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.StudentList.First().LastName)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.StudentList.First().DisplayName)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.StudentList.First().Email)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.StudentList.First().Gender)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.StudentList.First().DOB)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.StudentList.First().Address)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.StudentList.First().ContactNo)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.StudentList.First().IsEnable)</th>
+                <th style="background-color: #cbf5ee;"></th>
+            </tr>
+        </thead>
+    </table>
+</div>

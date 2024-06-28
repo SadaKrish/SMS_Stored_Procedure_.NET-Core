@@ -1,0 +1,62 @@
+﻿@model SMS.ViewModel.Student.StudentViewModel
+@{
+    ViewBag.Title = "Index";
+}
+<link href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+
+<link href="~/css/modulestylesheet.css" rel="stylesheet" />
+
+<div class="card panel-default">
+    <div class="panel-heading">
+        <h2 class="card-header">Student</h2>
+    </div>
+
+    <div class="panel-body card-body">
+        <div class="controls-container">
+            <a class="btn btn-outline-primary" style="margin: 10px; background-color: #cbf5ee;" onclick="LoadCreatePage()" id="button"> <i class="bi bi-plus"></i>  Add New Student</a>
+            <div class="form-group filter">
+                <label for="statusFilter">Status:</label>
+                <select id="filterStatus">
+                    <option value="all">All</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">InActive</option>
+                </select>
+            </div>
+            <div class="search-container">
+                <select id="searchCategory">
+                    <option value="StudentRegNo">Student Reg No</option>
+                    <option value="FirstName">First name</option>
+                   @*  <option value="LastName">Last Name</option> *@
+                    <option value="DisplayName">Display Name</option>
+                </select>
+                <input type="text" id="customSearchBox" placeholder="Search...">
+            </div>
+
+        </div>
+        <div id="list">
+            @await Html.PartialAsync("_StudentList")
+        </div>
+       
+    </div>
+</div>
+
+<div class="col-md-4" id="createoredit">
+    <!--Partial view-->
+
+
+</div>
+
+
+
+
+@section scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.7/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="~/js/student.js" asp-append-version="true"></script> 
+}
+
+
+
+
+
