@@ -1,9 +1,8 @@
 ﻿@model SMS.ViewModel.Student.StudentViewModel
 @{
-    ViewBag.Title = "Index";
-}
-<link href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    ViewBag.Title = "Student";
 
+}
 <link href="~/css/modulestylesheet.css" rel="stylesheet" />
 
 <div class="card panel-default">
@@ -22,19 +21,14 @@
                     <option value="inactive">InActive</option>
                 </select>
             </div>
-            <div class="search-container">
-                <select id="searchCategory">
-                    <option value="StudentRegNo">Student Reg No</option>
-                    <option value="FirstName">First name</option>
-                   @*  <option value="LastName">Last Name</option> *@
-                    <option value="DisplayName">Display Name</option>
-                </select>
-                <input type="text" id="customSearchBox" placeholder="Search...">
+            <div class="searchForm">
+                @await Html.PartialAsync("_StudentSearchView",Model.SearchView)
             </div>
+          
 
         </div>
-        <div id="list">
-            @await Html.PartialAsync("_StudentList")
+        <div id="studentslist">
+            @await Html.PartialAsync("_StudentList",Model)
         </div>
        
     </div>

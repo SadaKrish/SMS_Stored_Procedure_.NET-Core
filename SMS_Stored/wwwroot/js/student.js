@@ -1,7 +1,8 @@
-﻿//load the initail data
+﻿
+//load the initail data
 $(document).ready(function () {
     function initializeDataTable(data = []) {
-        // Check if the DataTable instance already exists
+       
         if ($.fn.DataTable.isDataTable("#studentlist")) {
             $("#studentlist").DataTable().destroy();
         }
@@ -9,7 +10,7 @@ $(document).ready(function () {
         $("#studentlist").DataTable({
             "data": data,
             "columns": [
-                { "data": "studentRegNo" }, // Adjusted to match the property names in your JSON objects
+                { "data": "studentRegNo" }, 
                 { "data": "firstName" },
                 { "data": "middleName" },
                 { "data": "lastName" },
@@ -17,7 +18,11 @@ $(document).ready(function () {
                 {
                     "data": "email",
                     "render": function (data) {
-                        return "<a href='mailto:" + data + "'>" + data + "</a>";
+                        return `
+                            <button class="mail-icon" data-email="${data}" onclick="copyDataToClipboard('${data}')">
+                                <i class="bi bi-envelope"></i> <!-- FontAwesome mail icon -->
+                            </button>
+                        `;
                     }
                 },
                 { "data": "gender" },
@@ -29,7 +34,7 @@ $(document).ready(function () {
                             var date = new Date(data);
                             return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
                         } else {
-                            return ''; // Return an empty string if DOB is null or undefined
+                            return ''; 
                         }
                     }
                 },
@@ -37,7 +42,11 @@ $(document).ready(function () {
                 {
                     "data": "contactNo",
                     "render": function (data) {
-                        return "<a href='tel:" + data + "'>" + data + "</a>";
+                        return `
+                               <button class="mail-icon" data-email="${data}" onclick="copyDataToClipboard('${data}')">
+                        <i class="bi bi-telephone"></i> 
+                    </button>
+                            `;
                     }
                 },
                 {
@@ -55,16 +64,15 @@ $(document).ready(function () {
                 {
                     "data": "studentID",
                     "render": function (data, type, row) {
-                        // Return a placeholder initially
                         var placeholder = "<span id='student-" + data + "'>Loading...</span>";
 
-                        // Make an AJAX call to check the allocation status
+                       
                         $.ajax({
                             type: "GET",
                             url: '/Student/CheckStudentAllocationStatus/',
                             data: { studentID: data },
                             success: function (response) {
-                                if (response.isAllocated) {
+                                if (response.exists) { 
                                     $("#student-" + data).replaceWith("<span class='badge bg-success'>Allocated</span>");
                                 } else {
                                     $("#student-" + data).replaceWith(
@@ -77,7 +85,6 @@ $(document).ready(function () {
                             }
                         });
 
-                        // Return the placeholder initially
                         return placeholder;
                     },
                     "orderable": false,
@@ -91,17 +98,20 @@ $(document).ready(function () {
         //return datatable;
     }
 
-    function searchAllocations() {
+    function searchStudents() {
         var searchText = $('#customSearchBox').val().trim();
         var searchCategory = $('#searchCategory').val();
 
+        formData = $('#search').serialize();
+        console.log("Form Data:", formData);
+     
         $.ajax({
             url: '/Student/SearchStudents/',
             type: 'POST',
-            data: { searchText: searchText, searchCategory: searchCategory },
+            data: $('#search').serialize(),  
             success: function (response) {
                 if (response.success) {
-                    // Reinitialize the DataTable with the new data
+                    
                     initializeDataTable(response.data);
                 } else {
                     console.error('Search failed:', response.message);
@@ -113,15 +123,17 @@ $(document).ready(function () {
         });
     }
 
+    $("#search").on("submit", function (event) {
+        event.preventDefault();
+        searchStudents();
+    });
     // Initial DataTable load
     initializeDataTable();
 
-    // Event handlers for search input and button
-    $('#customSearchBox').on('keyup', searchAllocations);
-    $('#searchButton').on('click', searchAllocations);
+    
+    $('#customSearchBox').on('keyup', searchStudents);
+    $('#searchButton').on('click', searchStudents);
 });
-
-
 
 //Load create page
 function LoadCreatePage() {
@@ -129,12 +141,12 @@ function LoadCreatePage() {
     $("#studentlist").hide();
     $("#button").hide();
     $('.panel-body').hide();
-    //  $("createoredit").show();
+   
     $("#back-to-list").show();
     $('.footer').hide();
     $.ajax({
         type: "GET",
-        url: '/Student/AddOrEditStudent',
+        url: '/Student/UpsertStudent',
 
         data: {},
         cache: false,
@@ -154,12 +166,12 @@ function LoadEditPage(studentId) {
     $("#studentlist").hide();
     $("#button").hide();
     $('.panel-body').hide();
-    $("#back-to-list").show(); // Show the "Back to List" button
+    $("#back-to-list").show(); 
     $('.footer').hide();
-    // Make an AJAX call to retrieve the edit form for the specified student ID
+  
     $.ajax({
         type: "GET",
-        url: '/Student/AddOrEditStudent/' + studentId,
+        url: '/Student/UpsertStudent/' + studentId,
         cache: false,
         success: function (data) {
             $("#createoredit").html(data); 
@@ -180,8 +192,6 @@ function addStudentSuccess(response) {
         }).then((result) => {
             if (result.isConfirmed) {
                 $("#createoredit").empty();
-
-                // Show the student list, button, panel body, and filter
                 $("#studentlist").show();
                 $("#button").show();
                 $('.panel-body').show();
@@ -190,16 +200,16 @@ function addStudentSuccess(response) {
                 // Hide the "Back to List" button
                 $("#back-to-list").hide();
 
-                // Reload the data table
+               
                 //var datatable = initializeDataTable();
                 $("#studentlist").DataTable().ajax.reload();
             }
         });
     } else {
-        // Clear previous validation messages
+     
         $('.text-danger').text('');
 
-        // Show validation messages under each field
+       
         $.each(response.errors, function (index, error) {
             $.each(error.Errors, function (key, message) {
                 var errorMessage = $('<span>').text(message).addClass('text-danger');
@@ -224,18 +234,18 @@ function addStudentFailure(error) {
 function LoadList() {
     $("#studentlist").show();
     $('#button').show();
-    $('#back-to-list').hide(); // Hide the "Back to List" button
+    $('#back-to-list').hide(); 
     $("#createoredit").empty();
     $('.panel-body').show();
     $('.filter').show();
-    //$('.footer').show();
+    $('.footer').show();
 
     var datatable = $('#studentlist').DataTable(); 
-    datatable.ajax.reload(null, false); // Reload data without resetting pagination
+    datatable.ajax.reload(null, false); 
 }
 
 function initializeDataTable(status = 'all') {
-    // Check if the DataTable instance already exists
+   
     if ($.fn.DataTable.isDataTable("#studentlist")) {
         $("#studentlist").DataTable().destroy();
     }
@@ -248,21 +258,21 @@ function initializeDataTable(status = 'all') {
                 status: status
             },
             "dataSrc": function (json) {
-                console.log("AJAX response:", json); // Debugging: Log the entire response
+                console.log("AJAX response:", json); 
                 if (json.success) {
-                    console.log("Data retrieved successfully:", json.data); // Debugging: Log retrieved data
-                    return json.data; // Return the array of student objects
+                    //console.log("Data retrieved successfully:", json.data); 
+                    return json.data; 
                 } else {
-                    console.error("Error message:", json.message); // Debugging: Log error message
-                    return []; // Return an empty array if there's an error
+                   // console.error("Error message:", json.message);
+                    return [];
                 }
             },
             "error": function (jqXHR, textStatus, errorThrown) {
-                console.error("AJAX error:", textStatus, errorThrown); // Debugging: Log AJAX errors
+                console.error("AJAX error:", textStatus, errorThrown); 
             }
         },
         "columns": [
-            { "data": "studentRegNo" }, // Adjusted to match the property names in your JSON objects
+            { "data": "studentRegNo" }, 
             { "data": "firstName" },
             { "data": "middleName" },
             { "data": "lastName" },
@@ -270,9 +280,14 @@ function initializeDataTable(status = 'all') {
             {
                 "data": "email",
                 "render": function (data) {
-                    return "<a href='mailto:" + data + "'>" + data + "</a>";
+                    return `
+                    <button class="mail-icon" data-email="${data}" onclick="copyDataToClipboard('${data}')">
+                        <i class="bi bi-envelope"></i> 
+                    </button>
+                `;
                 }
-            },
+            }
+,
             { "data": "gender" },
             {
                 "data": "dob",
@@ -290,7 +305,11 @@ function initializeDataTable(status = 'all') {
             {
                 "data": "contactNo",
                 "render": function (data) {
-                    return "<a href='tel:" + data + "'>" + data + "</a>";
+                    return `
+                               <button class="mail-icon" data-email="${data}" onclick="copyDataToClipboard('${data}')">
+                        <i class="bi bi-telephone"></i> 
+                    </button>
+                            `;
                 }
             },
             {
@@ -308,16 +327,14 @@ function initializeDataTable(status = 'all') {
             {
                 "data": "studentID",
                 "render": function (data, type, row) {
-                    // Return a placeholder initially
                     var placeholder = "<span id='student-" + data + "'>Loading...</span>";
 
-                    // Make an AJAX call to check the allocation status
                     $.ajax({
                         type: "GET",
                         url: '/Student/CheckStudentAllocationStatus/',
                         data: { studentID: data },
                         success: function (response) {
-                            if (response.isAllocated) {
+                            if (response.exists) { 
                                 $("#student-" + data).replaceWith("<span class='badge bg-success'>Allocated</span>");
                             } else {
                                 $("#student-" + data).replaceWith(
@@ -330,7 +347,6 @@ function initializeDataTable(status = 'all') {
                         }
                     });
 
-                    // Return the placeholder initially
                     return placeholder;
                 },
                 "orderable": false,
@@ -352,6 +368,22 @@ $(document).ready(function () {
         initializeDataTable(status);
     });
 });
+
+//$(document).ready(function () {
+//    $('#studentlist').DataTable({
+//        "pageLength": 5,
+//        "lengthMenu": [5, 10, 15, 20, 25],
+//        "searching": false,
+//        "ordering": true,
+//        "paging": true
+//    });
+
+//    // Example: Reinitialize DataTable on filter change (if you have a filter)
+//    $('#filterStatus').on('change', function () {
+//        initializeDataTable();
+//    });
+//});
+
 
 
 
@@ -447,3 +479,33 @@ function ToggleEnable(id, isChecked, displayName) {
         }
     });
 }
+    function copyDataToClipboard(contactNumber) {
+        // Create a temporary textarea element to hold the contact number
+        var tempTextArea = document.createElement("textarea");
+    tempTextArea.value = contactNumber;
+    document.body.appendChild(tempTextArea);
+
+    // Select and copy the contact number
+    tempTextArea.select();
+    document.execCommand("copy");
+
+    // Remove the temporary textarea element
+    document.body.removeChild(tempTextArea);
+
+    // Show the "Copied" message
+    var copiedMessage = document.getElementById("copiedMessage");
+    if (copiedMessage) {
+        copiedMessage.style.display = "block";
+    copiedMessage.textContent = "Copied!";
+
+    // Hide the message after 2 seconds
+    setTimeout(function() {
+        copiedMessage.style.display = "none";
+            }, 2000);
+        } else {
+        console.error('Copied message element not found.');
+        }
+    }
+
+
+

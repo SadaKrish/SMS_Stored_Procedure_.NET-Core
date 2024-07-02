@@ -1,5 +1,11 @@
-﻿using SMS.Model.Student;
+﻿/// <summary>
+///
+/// </summary>
+/// <author>Sadakshini</author>
+/// 
+using SMS.Model.Student;
 using SMS.ViewModel.RepositoryResponse;
+using SMS.ViewModel.Student;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -22,59 +28,54 @@ namespace SMS.BL.Student.Interface
         /// </summary>
         /// <param name="studentID"></param>
         /// <returns></returns>
-        StudentBO GetStudentByID(long studentID);
+        RepositoryResponse<StudentBO> GetStudentByID(long studentId);
         /// <summary>
-        /// Add or edit student
+        /// Student add or edit
         /// </summary>
         /// <param name="student"></param>
-        /// <param name="msg"></param>
         /// <returns></returns>
-        bool SaveStudent(StudentBO student, out string msg);
+        RepositoryResponse<bool> UpsertStudent(StudentBO student);
         /// <summary>
-        /// check the registration number existence
+        /// Check the existence of registration no
         /// </summary>
-        /// <param name="studentRegNo"></param>
+        /// <param name="regNo"></param>
         /// <returns></returns>
-        bool DoesStudentRegNoExist(string studentRegNo);
+        RepositoryResponse<bool> DoesStudentRegNoExist(string regNo);
         /// <summary>
-        ///Check Student display name existence
+        /// Check existence of display name
         /// </summary>
         /// <param name="displayName"></param>
         /// <returns></returns>
-        bool DoesStudentDisplayNameExist(string displayName);
+        RepositoryResponse<bool> DoesStudentDisplayNameExist(string displayName);
         /// <summary>
         /// Check student email existence
         /// </summary>
         /// <param name="email"></param>
         /// <returns></returns>
-        bool DoesStudentEmailExist(string email);
+        RepositoryResponse<bool> DoesStudentEmailExist(string email);
         /// <summary>
-        /// Delete the student details
+        /// 
         /// </summary>
         /// <param name="studentId"></param>
-        /// <param name="message"></param>
-        /// <param name="requiresConfirmation"></param>
         /// <returns></returns>
-        bool DeleteStudent(long studentId, out string message, out bool requiresConfirmation);
+        RepositoryResponse<bool> DeleteStudent(long studentId);
         /// <summary>
-        /// Status change of a student
+        /// 
         /// </summary>
         /// <param name="studentId"></param>
-        /// <param name="message"></param>
         /// <returns></returns>
-        bool ToggleStudentEnable(long studentId, out string message);
-        /// <summary>
-        /// Search based on categories
-        /// </summary>
-        /// <param name="searchText"></param>
-        /// <param name="searchCategory"></param>
-        /// <returns></returns>
-        IEnumerable<StudentBO> SearchStudents(string searchText, string searchCategory);
-        /// <summary>
-        /// Check the whether student is allocated for subject
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        bool CheckStudentAllocationStatus(long id);
+        RepositoryResponse<bool> ToggleStudentEnable(long studentId);
+       /// <summary>
+       /// Search student details
+       /// </summary>
+       /// <param name="searchModel"></param>
+       /// <returns></returns>
+        RepositoryResponse<IEnumerable<StudentBO>> SearchStudents(SearchViewModel searchModel);
+       /// <summary>
+       /// Check whther the student allocated for subject
+       /// </summary>
+       /// <param name="id"></param>
+       /// <returns></returns>
+        RepositoryResponse<bool> CheckStudentAllocationStatus(long id);
     }
 }

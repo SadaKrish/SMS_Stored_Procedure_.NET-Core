@@ -38,3 +38,14 @@ div .panel-body {
 .control-label, .form-control, .form-select, .text-danger {
     font-size: 14px;
 }
+.mail-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #007bff;
+}
+
+    .mail-icon:hover {
+        color: #0056b3;
+    }

@@ -1,10 +1,8 @@
 ﻿@model SMS.ViewModel.Student.StudentViewModel
-
 <div class="table-responsive">
     <table id="studentlist" class="table table-bordered table-striped" style="text-align:center; width: 100%;">
         <thead style="text-align:center;">
             <tr>
-
                 <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.StudentList.First().StudentRegNo)</th>
                 <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.StudentList.First().FirstName)</th>
                 <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.StudentList.First().MiddleName)</th>
@@ -19,5 +17,26 @@
                 <th style="background-color: #cbf5ee;"></th>
             </tr>
         </thead>
+        <tbody>
+            @foreach (var student in Model.StudentList)
+            {
+                <tr>
+                    <td>@student.StudentRegNo</td>
+                    <td>@student.FirstName</td>
+                    <td>@student.MiddleName</td>
+                    <td>@student.LastName</td>
+                    <td>@student.DisplayName</td>
+                    <td>@student.Email</td>
+                    <td>@student.Gender</td>
+                    <td>@student.DOB</td>
+                    <td>@student.Address</td>
+                    <td>@student.ContactNo</td>
+                    <td>@student.IsEnable</td>
+                    <td>
+                        <!-- Add any action buttons here, e.g., Edit, Delete -->
+                    </td>
+                </tr>
+            }
+        </tbody>
     </table>
 </div>

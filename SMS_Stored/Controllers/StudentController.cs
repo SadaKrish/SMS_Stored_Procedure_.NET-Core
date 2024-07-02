@@ -1,4 +1,8 @@
-﻿using System;
+﻿/// <summary>
+///
+/// </summary>
+/// <author>Sadakshini</author>
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlTypes;
@@ -7,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SMS.BL.Student.Interface;
@@ -22,6 +27,7 @@ namespace SMS_Stored.Controllers
     public class StudentController : Controller
     {
         private readonly IStudentRepository _studentRepository;
+        
 
         public StudentController(IStudentRepository studentRepository)
         {
@@ -33,9 +39,15 @@ namespace SMS_Stored.Controllers
         /// <returns></returns>
         public IActionResult Index()
         {
-           
-            return View();
+            var model = new StudentViewModel
+            {
+                StudentList = new List<StudentBO>(), 
+                SearchView = new SearchViewModel() 
+            };
+
+            return View(model);
         }
+
         /// <summary>
         /// Get the student details
         /// </summary>
@@ -78,63 +90,62 @@ namespace SMS_Stored.Controllers
             }
         }
 
-
-
         /// <summary>
         /// add or edit student details
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        public ActionResult AddOrEditStudent(long id = 0)
+        public ActionResult UpsertStudent(long id = 0)
         {
             if (id == 0)
             {
-                
-                return PartialView("_AddOrEdit", new StudentBO());
+
+                return PartialView("_Upsert", new StudentBO());
             }
             else
             {
                 // Edit existing student
-                var student = _studentRepository.GetStudentByID(id);
-                if (student == null)
+                var response = _studentRepository.GetStudentByID(id);
+                if (!response.Success || response.Data == null)
                 {
                     return NotFound();
                 }
-                return PartialView("_AddOrEdit", student);
+                return PartialView("_Upsert", response.Data);
             }
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult AddOrEditStudent(StudentBO student)
+        public ActionResult UpsertStudent(StudentBO student)
         {
-            if (ModelState.IsValid)
+            var errorResponse = new ErrorResponse();
+            try
             {
+                var response = new RepositoryResponse<bool>();
                 string message;
+                response = _studentRepository.UpsertStudent(student);
 
-                // Save or update the student using the repository method
-                if (_studentRepository.SaveStudent(student, out message))
+                if (response.Success)
                 {
-                    return Json(new { success = true, message = message });
+                    return Json(new { success = true, message = response.Messages });
                 }
                 else
                 {
-                    return Json(new { success = false, message = message });
+                    return Json(new { success = false, message = response.Messages });
                 }
             }
-            else
+            catch (Exception ex)
             {
-                // Return validation errors
-                var errors = ModelState.Where(ms => ms.Value.Errors.Any())
-                               .Select(ms => new
-                               {
-                                   Key = ms.Key,
-                                   Errors = ms.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-                               });
+                // Log the exception details for further analysis
+                // LogException(ex); // Assuming you have a logging mechanism
 
-                return Json(new { success = false, errors });
+                errorResponse.Messages.Add(string.Format(StaticMessages.Fill_Form));
+
+                return Json(new { success = errorResponse.Success, message = errorResponse.ErrorMessages });
             }
         }
+
+
 
         /// <summary>
         /// delete the student details
@@ -144,18 +155,31 @@ namespace SMS_Stored.Controllers
         [HttpPost]
         public ActionResult DeleteStudent(long id)
         {
-            string message;
+            var errorResponse = new ErrorResponse();
+           
             bool requiresConfirmation;
-
-            var success = _studentRepository.DeleteStudent(id, out message, out requiresConfirmation);
-
-            if (success)
+            try
             {
-                return Json(new { success = true, message = message });
+                var response = new RepositoryResponse<bool>();
+                string message;
+
+                response = _studentRepository.DeleteStudent(id);
+
+                if (response.Success)
+                {
+                    return Json(new { success = true, message = response.Messages });
+                }
+                else
+                {
+                    return Json(new { success = false,  message = response.Messages });
+                }
+
             }
-            else
+            catch 
             {
-                return Json(new { success = false, requiresConfirmation = requiresConfirmation, message = message });
+                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Students"));
+
+                return Json(new { success = errorResponse.Success, message = errorResponse.ErrorMessages });
             }
         }
 
@@ -167,9 +191,29 @@ namespace SMS_Stored.Controllers
         [HttpGet]
         public IActionResult CheckStudentRegNoExists(string regNo)
         {
-            bool exists = _studentRepository.DoesStudentRegNoExist(regNo);
-            return Json(new { exists });
+            var errorResponse = new ErrorResponse();
+            try
+            {
+                var response = _studentRepository.DoesStudentRegNoExist(regNo);
+
+                if (response.Success)
+                {
+                    return Json(new { exists = response.Data });
+                }
+                else
+                {
+                    return Json(new { success = false, message = response.Messages });
+                }
+            }
+            catch 
+            {
+                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Student Registration Number"));
+               // errorResponse.Messages.Add(ex.Message); 
+
+                return Json(new { success = false, message = errorResponse.Messages });
+            }
         }
+
         /// <summary>
         /// check the existence of display name
         /// </summary>
@@ -178,8 +222,26 @@ namespace SMS_Stored.Controllers
         [HttpGet]
         public IActionResult CheckStudentDisplayNameExists(string displayName)
         {
-            bool exists = _studentRepository.DoesStudentDisplayNameExist(displayName);
-            return Json(new { exists });
+            var errorResponse= new ErrorResponse();
+            try
+            {
+                var response = _studentRepository.DoesStudentDisplayNameExist(displayName);
+                if (response.Success)
+                {
+                    return Json(new { exists = response.Data });
+                }
+                else
+                {
+                    return Json(new { success = false, message = response.Messages });
+                }
+            }
+            catch (Exception ex)
+            {
+                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Student Display name"));
+                errorResponse.Messages.Add(ex.Message); 
+
+                return Json(new { success = false, message = errorResponse.Messages });
+            }
         }
         /// <summary>
         /// Check the existence of emial id
@@ -189,8 +251,24 @@ namespace SMS_Stored.Controllers
         [HttpGet]
         public IActionResult CheckStudentEmailExists(string email)
         {
-            bool exists = _studentRepository.DoesStudentEmailExist(email);
-            return Json(new { exists });
+            var errorResponse = new ErrorResponse();
+            try
+            {
+                var response = _studentRepository.DoesStudentEmailExist(email);
+                if (response.Success)
+                {
+                    return Json(new { exists = response.Data });
+                }
+                else
+                {
+                    return Json(new { success = false, message = response.Messages });
+                }
+            }
+            catch (Exception ex)
+            {
+                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Student Email"));
+                return Json(new { success = false, message = errorResponse.Messages });
+            }
         }
         /// <summary>
         /// Check the student allocation status
@@ -199,9 +277,28 @@ namespace SMS_Stored.Controllers
         /// <returns></returns>
         public JsonResult CheckStudentAllocationStatus(long studentID)
         {
-            bool isAllocated = _studentRepository.CheckStudentAllocationStatus(studentID);
-            return Json(new { isAllocated = isAllocated });
+            var errorResponse = new ErrorResponse();
+            try
+            {
+                var response = _studentRepository.CheckStudentAllocationStatus(studentID);
+                if (response.Success)
+                {
+                    return Json(new { exists = response.Data });
+                }
+                else
+                {
+                    return Json(new { success = false, message = response.Messages });
+                }
+            }
+            catch
+            {
+                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Student Allocation"));
+                return Json(new { success = false, message = errorResponse.Messages });
+            }
+
         }
+           
+       
         /// <summary>
         /// Change the status of a student
         /// </summary>
@@ -210,37 +307,59 @@ namespace SMS_Stored.Controllers
         [HttpPost]
         public ActionResult ToggleEnableStudent(long id)
         {
-            string message;
-            var success = _studentRepository.ToggleStudentEnable(id, out message);
-
-            if (success)
-            {
-                return Json(new { success = true, message = message });
-            }
-            else
-            {
-                return NotFound();
-            }
-        }
-        /// <summary>
-        /// Search based on categories
-        /// </summary>
-        /// <param name="searchText"></param>
-        /// <param name="searchCategory"></param>
-        /// <returns></returns>
-        [HttpPost]
-        public ActionResult SearchStudents(string searchText, string searchCategory)
-      {
+            var errorResponse = new ErrorResponse();
             try
             {
-                var searchResults = _studentRepository.SearchStudents(searchText, searchCategory);
-                return Json(new { success = true, data = searchResults });
+                var response = _studentRepository.ToggleStudentEnable(id);
+                if (response.Success)
+                {
+                    return Json(new { success = true, message = response.Messages });
+                }
+                else
+                {
+                    return Json(new { success = false, message = response.Messages });
+                }
             }
-            catch (Exception ex)
+            catch 
             {
-                return Json(new { success = false, message = ex.Message });
+                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Student Status"));
+                return Json(new { success = false, message = errorResponse.Messages });
+            }
+
+           
+        }
+       /// <summary>
+       /// Search filter
+       /// </summary>
+       /// <param name="model"></param>
+       /// <returns></returns>
+        [HttpPost]
+        public ActionResult SearchStudents(SearchViewModel model)
+        {
+            var errorResponse = new ErrorResponse();
+            try
+            {
+                var response = _studentRepository.SearchStudents(model);
+                if (response.Success)
+                {
+                    return Json(new { success = true, data = response.Data });
+                }
+                else
+                {
+                    return Json(new { success = false, message = response.Messages });
+                }
+
+            }
+            catch
+            {
+                errorResponse.Messages.Add(string.Format(StaticMessages.Data_Not_Found));
+               // errorResponse.Messages.Add(ex.Message); 
+
+                return Json(new { success = false, message = errorResponse.Messages });
             }
         }
+
+        
 
     }
 }
