@@ -11,7 +11,7 @@
     
     <link href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
+    
 
 </head>
 <body>
@@ -67,12 +67,16 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+ 
     <!-- Include DataTables JS -->
   
  @*    <script src="c:\users\acer\.nuget\packages\datatables.net\2.0.8\contentfiles\any\any\wwwroot\js\datatables.min.js"></script> *@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+   @*  <script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.js"></script> *@
+   
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -9,6 +9,7 @@ using System.Data.SqlTypes;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
@@ -39,13 +40,13 @@ namespace SMS_Stored.Controllers
         /// <returns></returns>
         public IActionResult Index()
         {
-            var model = new StudentViewModel
+            
+            var viewModel = new StudentViewModel
             {
-                StudentList = new List<StudentBO>(), 
+                StudentList = new List<StudentBO>(),
                 SearchView = new SearchViewModel() 
             };
-
-            return View(model);
+            return View(viewModel);
         }
 
         /// <summary>
@@ -74,7 +75,13 @@ namespace SMS_Stored.Controllers
 
                 if (response.Success && response.Data != null && response.Data.Any())
                 {
-                    return Json(new { success = true, data = response.Data });
+                    var viewModel = new StudentViewModel
+                    {
+                        StudentList = response.Data,
+                        SearchView = new SearchViewModel()
+
+                    };
+                    return PartialView("_StudentList", viewModel);
                 }
                 else
                 {
@@ -128,6 +135,7 @@ namespace SMS_Stored.Controllers
                 if (response.Success)
                 {
                     return Json(new { success = true, message = response.Messages });
+                   
                 }
                 else
                 {
@@ -136,9 +144,6 @@ namespace SMS_Stored.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception details for further analysis
-                // LogException(ex); // Assuming you have a logging mechanism
-
                 errorResponse.Messages.Add(string.Format(StaticMessages.Fill_Form));
 
                 return Json(new { success = errorResponse.Success, message = errorResponse.ErrorMessages });
@@ -157,11 +162,11 @@ namespace SMS_Stored.Controllers
         {
             var errorResponse = new ErrorResponse();
            
-            bool requiresConfirmation;
+           // bool requiresConfirmation;
             try
             {
                 var response = new RepositoryResponse<bool>();
-                string message;
+               // string message;
 
                 response = _studentRepository.DeleteStudent(id);
 
@@ -340,9 +345,15 @@ namespace SMS_Stored.Controllers
             try
             {
                 var response = _studentRepository.SearchStudents(model);
-                if (response.Success)
+                if (response.Success && response.Data != null && response.Data.Any())
                 {
-                    return Json(new { success = true, data = response.Data });
+                    var viewModel = new StudentViewModel
+                    {
+                        StudentList = response.Data,
+                        SearchView = new SearchViewModel()
+
+                    };
+                    return PartialView("_StudentList", viewModel);
                 }
                 else
                 {

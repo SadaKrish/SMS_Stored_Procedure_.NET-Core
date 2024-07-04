@@ -10,6 +10,8 @@ namespace SMS.ViewModel.Student
     public class StudentViewModel
     {
         public IEnumerable<StudentBO> StudentList { get; set; }
-        public SearchViewModel SearchView { get; set; } 
+        public SearchViewModel SearchView { get; set; }
+      
     }
+
 }

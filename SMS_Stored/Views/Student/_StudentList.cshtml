@@ -18,25 +18,63 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var student in Model.StudentList)
+            @if (Model.StudentList != null && Model.StudentList.Any())
+            {
+                @foreach (var student in Model.StudentList)
+                {
+                    <tr data-student-id="@student.StudentID">
+                        <td>@student.StudentRegNo</td>
+                        <td>@student.FirstName</td>
+                        <td>@student.MiddleName</td>
+                        <td>@student.LastName</td>
+                        <td>@student.DisplayName</td>
+                        <td>
+                            <button class="mail-icon" data-email="@student.Email" onclick="copyDataToClipboard('@student.Email',this)">
+                                <i class="bi bi-envelope"></i>
+                            </button>
+                            <div class="copiedMessage" style="display: none;">Copied!</div>
+                        </td>
+                        <td>@student.Gender</td>
+                        <td>
+                            @if (student.DOB.HasValue)
+                            {
+                                @student.DOB.Value.ToString("yyyy-MM-dd")
+                            }
+                            else
+                            {
+                                <span>N/A</span>
+                            }
+                        </td>
+                        <td>@student.Address</td>
+                        <td>
+                            <button class="mail-icon" data-contact="@student.ContactNo" onclick="copyDataToClipboard('@student.ContactNo', this)">
+                                <i class="bi bi-telephone"></i>
+                            </button>
+                            <div class="copiedMessage" style="display: none;">Copied!</div>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="studentCheckbox_@student.StudentID" @(student.IsEnable ? "checked" : "")
+                                   onclick="ToggleEnable(@student.StudentID, this.checked, '@student.DisplayName.Replace("'", "\\'")')" />
+                        </td>
+                        <td id="student-status-@student.StudentID">
+
+                            <a class="btn" style="background-color:#cbf5ee;" href="javascript:void(0);" onclick="LoadEditPage(@student.StudentID)">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a class="btn" style="background-color:#cbf5ee;" href="#" onclick="Delete(@student.StudentID)">
+                                <i class="bi bi-trash" style="color:red;"></i>
+                            </a>
+                            
+                        </td>
+                    </tr>
+                }
+            }
+           @*  else
             {
                 <tr>
-                    <td>@student.StudentRegNo</td>
-                    <td>@student.FirstName</td>
-                    <td>@student.MiddleName</td>
-                    <td>@student.LastName</td>
-                    <td>@student.DisplayName</td>
-                    <td>@student.Email</td>
-                    <td>@student.Gender</td>
-                    <td>@student.DOB</td>
-                    <td>@student.Address</td>
-                    <td>@student.ContactNo</td>
-                    <td>@student.IsEnable</td>
-                    <td>
-                        <!-- Add any action buttons here, e.g., Edit, Delete -->
-                    </td>
+                    <td colspan="12">No records found.</td>
                 </tr>
-            }
+            } *@ 
         </tbody>
     </table>
 </div>

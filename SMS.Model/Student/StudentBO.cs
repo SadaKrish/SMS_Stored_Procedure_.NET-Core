@@ -31,13 +31,13 @@ namespace SMS.Model.Student
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         [Required(ErrorMessage = "Date of Birth is required")]
         [DisplayName("DOB")]
-        public System.DateTime DOB { get; set; }
+        public DateTime? DOB { get; set; }
         [Required(ErrorMessage = "Address is required")]
         public string Address { get; set; }
         [Required(ErrorMessage = "Contact no is required"), DisplayName("Contact No")]
         public string ContactNo { get; set; }
         [DisplayName("Status")]
         public bool IsEnable { get; set; }
-
+       
     }
 }

@@ -40,6 +40,7 @@ namespace SMS.BL.Student
             {
                 var statusParam = new SqlParameter("@IsEnable", isEnable.HasValue ? isEnable.Value : DBNull.Value);
 
+                // Execute the stored procedure
                 var students = _context.Students
                                        .FromSqlRaw("EXEC Get_Students @IsEnable", statusParam).ToList();
 
@@ -66,6 +67,7 @@ namespace SMS.BL.Student
             var response = new RepositoryResponse<StudentBO>();
             try
             {
+                // Execute the stored procedure
                 var student = _context.Students
                     .FromSqlRaw("EXEC Get_StudentById @StudentId = {0}", studentId)
                     .AsEnumerable()
@@ -117,6 +119,7 @@ namespace SMS.BL.Student
                 var isEnableParam = new SqlParameter("@IsEnable", student.IsEnable);
                 var resultParam = new SqlParameter("@Result", SqlDbType.Int) { Direction = ParameterDirection.Output };
 
+                // Execute the stored procedure
                 _context.Database.ExecuteSqlRaw("EXEC dbo.usp_AddOrEdit_Student @StudentID, @StudentRegNo, @FirstName, @MiddleName, @LastName, @DisplayName, @Email, @Gender, @DOB, @Address, @ContactNo, @IsEnable, @Result OUTPUT",
                                                  studentIDParam, studentRegNoParam, firstNameParam, middleNameParam, lastNameParam,
                                                  displayNameParam, emailParam, genderParam, dobParam, addressParam, contactNoParam, isEnableParam, resultParam);
@@ -169,6 +172,7 @@ namespace SMS.BL.Student
                     Direction = ParameterDirection.Output
                 };
 
+                // Execute the stored procedure
                 _context.Database.ExecuteSqlRaw("SELECT @Result = dbo.fn_CheckStudentRegNoExists(@RegNo)", stRegNo, result);
 
                 response.Data = (bool)result.Value;
@@ -202,7 +206,7 @@ namespace SMS.BL.Student
                     Direction = ParameterDirection.Output
                 };
 
-
+                // Execute the stored procedure
                 _context.Database.ExecuteSqlRaw("SELECT @Result = dbo.fn_CheckDisplayNameExists(@DisplayName)", stDisplayName, result);
 
                 response.Data = (bool)result.Value;
@@ -235,7 +239,7 @@ namespace SMS.BL.Student
                     Direction = ParameterDirection.Output
                 };
 
-
+                // Execute the stored procedure
                 _context.Database.ExecuteSqlRaw("SELECT @Result = dbo.fn_CheckEmailExists(@Email)", stEmail, result);
 
 
@@ -276,6 +280,7 @@ namespace SMS.BL.Student
 
             try
             {
+                // Execute the stored procedure
                 _context.Database.ExecuteSqlRaw("EXEC dbo.usp_DeleteStudent @StudentID, @Message OUTPUT, @RequiresConfirmation OUTPUT",
                          studentIdParam, messageParam, requiresConfirmationParam);
 
@@ -309,8 +314,7 @@ namespace SMS.BL.Student
         /// Toggle student status
         /// </summary>
         /// <param name="studentId"></param>
-        /// <returns></returns>
-       
+        /// <returns></returns>   
         public RepositoryResponse<bool> ToggleStudentEnable(long studentId)
         {
             var response=new RepositoryResponse<bool>();
@@ -330,6 +334,7 @@ namespace SMS.BL.Student
             };
             try
             {
+                // Execute the stored procedure
                 _context.Database.ExecuteSqlRaw("EXEC dbo.usp_ToggleStudentEnable @StudentID, @Message OUTPUT, @Success OUTPUT",
                                              studentIdParam, messageParam, successParam);
 
@@ -359,6 +364,7 @@ namespace SMS.BL.Student
                 var searchTextParam = new SqlParameter("@SearchText", (object)searchModel.SearchText ?? DBNull.Value);
                 var searchCategoryParam = new SqlParameter("@SearchCategory", (object)searchModel.SearchCategory ?? DBNull.Value);
 
+                // Execute the stored procedure
                 var students = _context.Students
                     .FromSqlRaw("EXEC dbo.usp_SearchStudents @SearchText, @SearchCategory", searchTextParam, searchCategoryParam)
                     .ToList();
@@ -396,13 +402,12 @@ namespace SMS.BL.Student
                 // Execute the stored procedure
                 _context.Database.ExecuteSqlRaw("EXEC dbo.usp_CheckStudentAllocation @StudentID, @Result OUTPUT", stdID, result);
 
-                // Set the response data based on the output parameter
+               
                 response.Data = result.Value != DBNull.Value && (bool)result.Value;
                 response.Success = true;
             }
             catch (Exception ex)
             {
-                // Handle exceptions
                 response.Success = false;
                 response.Messages.Add($"Error: {ex.Message}");
             }
@@ -410,15 +415,7 @@ namespace SMS.BL.Student
             return response;
         }
 
-
-
-
     }
-
-
-
-
-
 
 }
 

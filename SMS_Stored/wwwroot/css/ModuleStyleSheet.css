@@ -46,6 +46,16 @@ div .panel-body {
     color: #007bff;
 }
 
-    .mail-icon:hover {
+.mail-icon:hover {
         color: #0056b3;
-    }
+}
+
+.copiedMessage {
+    position: absolute;
+    background: white;
+    color: #007bff;
+    padding: 5px;
+    border-radius: 3px;
+    z-index: 1000;
+    transform: translateY(-100%);
+}
