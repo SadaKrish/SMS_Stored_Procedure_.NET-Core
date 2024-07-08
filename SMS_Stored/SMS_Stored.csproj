@@ -8,16 +8,16 @@
 
   <ItemGroup>
     <PackageReference Include="datatables.net" Version="2.0.8" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Data\" />
+    <PackageReference Include="NLog.Database" Version="5.3.2" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="5.3.11" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.11" />
   </ItemGroup>
 
   <ItemGroup>

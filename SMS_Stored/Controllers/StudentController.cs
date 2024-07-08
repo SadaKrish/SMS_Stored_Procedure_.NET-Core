@@ -10,6 +10,8 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Threading.Tasks;
 using Azure;
+using Microsoft.Extensions.Logging;
+using NLog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
@@ -21,6 +23,7 @@ using SMS.ViewModel.ErrorResponse;
 using SMS.ViewModel.RepositoryResponse;
 using SMS.ViewModel.StaticData;
 using SMS.ViewModel.Student;
+using System.Diagnostics.Eventing.Reader;
 
 
 namespace SMS_Stored.Controllers
@@ -28,11 +31,13 @@ namespace SMS_Stored.Controllers
     public class StudentController : Controller
     {
         private readonly IStudentRepository _studentRepository;
+        private readonly ILogger<StudentController>_logger;
         
 
-        public StudentController(IStudentRepository studentRepository)
+        public StudentController(IStudentRepository studentRepository,ILogger<StudentController> logger)
         {
             _studentRepository = studentRepository;
+            _logger = logger;
         }
         /// <summary>
         /// Index page view
@@ -40,7 +45,7 @@ namespace SMS_Stored.Controllers
         /// <returns></returns>
         public IActionResult Index()
         {
-            
+            _logger.LogInformation("Index page view requested");
             var viewModel = new StudentViewModel
             {
                 StudentList = new List<StudentBO>(),
@@ -60,6 +65,7 @@ namespace SMS_Stored.Controllers
             var errorResponse = new ErrorResponse();
             try
             {
+                _logger.LogInformation("GetStudents method called with status:{ Status}", status);
                 var response = new RepositoryResponse<IEnumerable<StudentBO>>();
                 bool? isEnabled = null;
                 if (status.ToLower() == "active")
@@ -89,8 +95,9 @@ namespace SMS_Stored.Controllers
                     return new JsonResult(errorResponse);
                 }
             }
-            catch (Exception)
+            catch 
             {
+                _logger.LogError("Error occurred while getting students");
                 errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Students"));
 
                 return Json(new { success = errorResponse.Success, message = errorResponse.ErrorMessages });
@@ -107,12 +114,13 @@ namespace SMS_Stored.Controllers
         {
             if (id == 0)
             {
-
+                _logger.LogInformation("UpsertStudent method called to add a new Student");
                 return PartialView("_Upsert", new StudentBO());
             }
             else
             {
                 // Edit existing student
+                _logger.LogWarning("UpsertStudent method called to edit student with ID: {ID}", id);
                 var response = _studentRepository.GetStudentByID(id);
                 if (!response.Success || response.Data == null)
                 {
@@ -129,7 +137,6 @@ namespace SMS_Stored.Controllers
             try
             {
                 var response = new RepositoryResponse<bool>();
-                string message;
                 response = _studentRepository.UpsertStudent(student);
 
                 if (response.Success)
@@ -139,11 +146,13 @@ namespace SMS_Stored.Controllers
                 }
                 else
                 {
+                    _logger.LogError("User attempt to submit form without filling necessary fields");
                     return Json(new { success = false, message = response.Messages });
                 }
             }
-            catch (Exception ex)
+            catch
             {
+                
                 errorResponse.Messages.Add(string.Format(StaticMessages.Fill_Form));
 
                 return Json(new { success = errorResponse.Success, message = errorResponse.ErrorMessages });
@@ -165,6 +174,7 @@ namespace SMS_Stored.Controllers
            // bool requiresConfirmation;
             try
             {
+                _logger.LogInformation("Delete Student method called to delete student with ID: {ID}", id);
                 var response = new RepositoryResponse<bool>();
                // string message;
 
@@ -176,6 +186,8 @@ namespace SMS_Stored.Controllers
                 }
                 else
                 {
+                    _logger.LogWarning("Delete method called to delete student with ID: {ID}", id);
+                    
                     return Json(new { success = false,  message = response.Messages });
                 }
 
@@ -207,6 +219,7 @@ namespace SMS_Stored.Controllers
                 }
                 else
                 {
+                    _logger.LogError("The registration number entered is alredy exists.");
                     return Json(new { success = false, message = response.Messages });
                 }
             }
@@ -237,6 +250,7 @@ namespace SMS_Stored.Controllers
                 }
                 else
                 {
+                    _logger.LogError("The display name entered is alredy exists.");
                     return Json(new { success = false, message = response.Messages });
                 }
             }
@@ -266,10 +280,11 @@ namespace SMS_Stored.Controllers
                 }
                 else
                 {
+                    _logger.LogError("The email id entered is alredy exists.");
                     return Json(new { success = false, message = response.Messages });
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Student Email"));
                 return Json(new { success = false, message = errorResponse.Messages });
@@ -318,10 +333,12 @@ namespace SMS_Stored.Controllers
                 var response = _studentRepository.ToggleStudentEnable(id);
                 if (response.Success)
                 {
+                    _logger.LogError("The status of student {id} is updated",id);
                     return Json(new { success = true, message = response.Messages });
                 }
                 else
                 {
+                    _logger.LogError("The status does not updated");
                     return Json(new { success = false, message = response.Messages });
                 }
             }
@@ -357,12 +374,14 @@ namespace SMS_Stored.Controllers
                 }
                 else
                 {
+                    _logger.LogError("No Students found");
                     return Json(new { success = false, message = response.Messages });
                 }
 
             }
             catch
             {
+                _logger.LogError("Error in search students");
                 errorResponse.Messages.Add(string.Format(StaticMessages.Data_Not_Found));
                // errorResponse.Messages.Add(ex.Message); 
 

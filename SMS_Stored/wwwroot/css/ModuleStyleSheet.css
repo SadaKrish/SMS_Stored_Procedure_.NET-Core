@@ -59,3 +59,14 @@ div .panel-body {
     z-index: 1000;
     transform: translateY(-100%);
 }
+
+.filterForm {
+    padding-top:40px;
+    padding-left:30%;
+    display: flex;
+    gap: 15px;
+}
+
+#charts {
+    display:flex;
+}

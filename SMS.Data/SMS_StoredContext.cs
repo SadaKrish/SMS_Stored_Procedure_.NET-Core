@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SMS.Model.Log;
 using SMS.Model.Student;
 using System;
 using System.Collections.Generic;
@@ -16,5 +17,8 @@ namespace SMS.Data
         }
 
         public DbSet<StudentBO> Students { get; set; }
+        public DbSet<LogBO> Logs { get; set; }
+
+
     }
 }

@@ -86,7 +86,6 @@ namespace SMS.BL.Student
             }
             catch (Exception ex)
             {
-                // Handle exceptions
                 response.Success = false;
                 response.Messages.Add(ex.Message);
             }
