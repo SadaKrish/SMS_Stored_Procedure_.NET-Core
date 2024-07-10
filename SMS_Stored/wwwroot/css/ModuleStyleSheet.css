@@ -61,12 +61,44 @@ div .panel-body {
 }
 
 .filterForm {
-    padding-top:40px;
-    padding-left:30%;
+    padding-top:30px;
+   padding-left:20%;
     display: flex;
-    gap: 15px;
+    gap: 10px;
 }
 
 #charts {
     display:flex;
+}
+
+#button,#buttonBar,#downloadPdfBtn {
+    width: 200px;
+    margin-top: 10px;
+}
+
+.autocomplete-item {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+    font-size:10px;
+}
+
+.autocomplete-item:hover {
+    background-color: #f0f0f0;
+}
+
+.date-container {
+    display: flex; 
+    align-items: center; 
+}
+
+.date-container label {
+    margin-right: 5px;
+    white-space: nowrap; 
+}
+
+.date-container input {
+    flex: 1; 
 }

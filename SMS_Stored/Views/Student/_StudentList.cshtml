@@ -38,7 +38,7 @@
                         <td class="text-center">
                             @if (student.DOB.HasValue)
                             {
-                                @student.DOB.Value.ToString("yyyy-MM-dd")
+                                @student.DOB.Value.ToString(SMS.ViewModel.DateFormat.ShortDate)
                             }
                             else
                             {

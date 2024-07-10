@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Rotativa.AspNetCore;
 using SMS.BL.Log.Interface;
 using SMS.Model.Log;
 using SMS.ViewModel.ErrorResponse;
@@ -161,7 +162,24 @@ namespace SMS_Stored.Controllers
                 return StatusCode(500, new { error = ex.Message });
             }
         }
-
+        public IActionResult ExportToPdf(FilterViewModel filterView)
+        {
+            var response = _logRepository.GetLogs(filterView);
+            var logs= response.Data;
+            var logViewModel = new LogViewModel
+            {
+                Logs = logs,
+                FilterView=filterView
+               
+            };
+            return new ViewAsPdf("_LogListPdf", logViewModel)
+            {
+                FileName = $"LogList_{DateTime.Now:yyyyMMdd_HHmmss}.pdf",
+                PageSize = Rotativa.AspNetCore.Options.Size.A4,
+                PageOrientation = Rotativa.AspNetCore.Options.Orientation.Portrait,
+                CustomSwitches = "--disable-smart-shrinking --print-media-type --viewport-size 1280x1024"
+            };
+        }
 
     }
 }

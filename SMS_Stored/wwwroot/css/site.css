@@ -19,8 +19,9 @@ textarea {
     max-width: 280px;
 }
 
-.navbar {
+nav {
     background-color: #658cc2;
+    color: white;
 }
 
 .card-header {

@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SMS.ViewModel;
 
 namespace SMS.Model.Student
 {
@@ -28,7 +29,7 @@ namespace SMS.Model.Student
         public string Email { get; set; }
         [Required(ErrorMessage = "Gender is required")]
         public string Gender { get; set; }
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:"+DateFormat.ShortDate+"}", ApplyFormatInEditMode = true)]
         [Required(ErrorMessage = "Date of Birth is required")]
         [DisplayName("DOB")]
         public DateTime? DOB { get; set; }
@@ -38,6 +39,7 @@ namespace SMS.Model.Student
         public string ContactNo { get; set; }
         [DisplayName("Status")]
         public bool IsEnable { get; set; }
+
        
     }
 }

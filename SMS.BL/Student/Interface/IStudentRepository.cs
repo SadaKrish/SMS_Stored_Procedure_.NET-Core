@@ -71,6 +71,12 @@ namespace SMS.BL.Student.Interface
        /// <param name="searchModel"></param>
        /// <returns></returns>
         RepositoryResponse<IEnumerable<StudentBO>> SearchStudents(SearchViewModel searchModel);
+        /// <summary>
+        /// Showing Search Options
+        /// </summary>
+        /// <param name="searchModel"></param>
+        /// <returns></returns>
+        RepositoryResponse<IEnumerable<StudentBO>> GetStudentsByTerm(SearchViewModel searchModel);
        /// <summary>
        /// Check whther the student allocated for subject
        /// </summary>

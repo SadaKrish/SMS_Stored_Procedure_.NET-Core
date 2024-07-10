@@ -11,12 +11,19 @@
     });
 
     $('#customSearchBox').on('keyup', function () {
-        searchStudents();
+        var searchTerm = $(this).val().trim();
+        if (searchTerm.length >= 1) { 
+            searchStudentsOptions();
+        } else if (searchTerm.length === 0) { 
+            loadStudentList();
+        }
     });
 
     $('#searchButton').on('click', function () {
         searchStudents();
     });
+
+   
 });
 
 function loadStudentList() {
@@ -35,6 +42,44 @@ function loadStudentList() {
         }
     });
 }
+function searchStudentsOptions() {
+    $("#customSearchBox").autocomplete({
+        source: function (request, response) {
+            $.ajax({
+                url: '/Student/GetSearchSuggestions',
+                type: 'GET',
+                dataType: 'json',
+                data: {
+                    term: request.term,
+                    category: $("#searchCategory").val()
+                },
+                success: function (data) {
+                    console.log(data); 
+                    if (Array.isArray(data)) {
+                        response(data.map(item => ({
+                            label: item.label,
+                            value: item.value,
+                            data: item.data
+                        })));
+                    } else {
+                        console.error('Expected an array but got:', data);
+                    }
+                },
+                error: function () {
+                    console.error('Error fetching search suggestions.');
+                }
+            });
+
+        },
+        minLength: 1,
+        select: function (event, ui) {
+            //console.log('Selected: ' + ui.item.label);
+            //console.log(ui.item.data);
+            $("#customSearchBox").val(ui.item.value); 
+            searchStudents();
+        }
+    });
+}
 function searchStudents() {
     $.ajax({
         url: '/Student/SearchStudents',
@@ -44,7 +89,6 @@ function searchStudents() {
             if ($(response).find('tbody tr').length === 0) {
                 $('#studentslist').html('<p clas="text-center">No matching data found.</p>');
             } else {
-                // Directly set the HTML content to the container
                 $('#studentslist').html(response);
                 initializeDataTable();
                 updateStudentStatuses();

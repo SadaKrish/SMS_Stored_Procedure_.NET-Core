@@ -41,7 +41,72 @@
     $('#searchButton').on('click', function () {
         searchLogs();
     });
+
+    //$("#startDate").datepicker({
+    //    dateFormat: "dd/mm/yy",
+    //    changeMonth: true,
+    //    changeYear: true,
+    //    yearRange: "c-10:c+10" 
+    //});
+
+    //$("#endDate").datepicker({
+    //    dateFormat: "dd/mm/yy",
+    //    changeMonth: true,
+    //    changeYear: true,
+    //    yearRange: "c-10:c+10"
+    //});
+   
+    //var today = new Date();
+    //var day = String(today.getDate()).padStart(2, '0');
+    //var month = String(today.getMonth() + 1).padStart(2, '0');
+    //var year = today.getFullYear();
+    //var todayDate = year + '-' + month + '-' + day;
+
+    //var startDateInput = $('#startDate');
+    //var endDateInput = $('#endDate');
+
+    //if (!startDateInput.val()) {
+    //    startDateInput.val(todayDate);
+    //}
+
+    //if (!endDateInput.val()) {
+    //    endDateInput.val(todayDate);
+    //}
+    //var dateFormat = "mm-yy-dd";
+    //var today = new Date();
+    //var from = $("#startDate")
+    //    .datepicker({
+    //        defaultDate: today,
+    //        changeMonth: true,
+    //        numberOfMonths: 1,
+    //        dateFormat: dateFormat
+    //    })
+    //    .on("change", function () {
+    //        to.datepicker("option", "minDate", getDate(this));
+    //    });
+
+    //var to = $("#endDate").datepicker({
+    //    defaultDate: today,
+    //    changeMonth: true,
+    //    numberOfMonths: 1,
+    //    dateFormat: dateFormat
+    //})
+    //    .on("change", function () {
+    //        from.datepicker("option", "maxDate", getDate(this));
+    //    });
+
+    //function getDate(element) {
+    //    var date;
+    //    try {
+    //        date = $.datepicker.parseDate(dateFormat, element.value);
+    //    } catch (error) {
+    //        date = null;
+    //    }
+    //    return date;
+    //}
 });
+
+
 //Load the log table
 function loadLogList() {
     var logLevel = $('#logLevel').val();
@@ -77,6 +142,29 @@ function initializeDataTable() {
         });
     }
 }
+
+//field filled with today's date as default
+ document.addEventListener("DOMContentLoaded", function() {
+    var today = new Date();
+    var day = String(today.getDate()).padStart(2, '0');
+    var month = String(today.getMonth() + 1).padStart(2, '0'); 
+    var year = today.getFullYear();
+    var todayDate = year + '-' + month + '-' + day;
+    var startDateInput = document.getElementById('startDate');
+    var endDateInput = document.getElementById('endDate');
+
+    if (!startDateInput.value) {
+        startDateInput.value = todayDate;
+        }
+
+    if (!endDateInput.value) {
+        endDateInput.value = todayDate;
+        }
+ });
+
+$(document).ready(function () {
+    
+});
 
 
 //Back button
@@ -119,19 +207,23 @@ function drawLineChart() {
             .then(response => response.json())
             .then(data => {
                 //console.log('Fetched chart data:', data);
-                const chartData = [['Date', 'Info', 'Warn', 'Error', 'Critical']];
+                const chartData = [['Date', 'Info', 'Warn', 'Error', 'Debug']];
 
                 const groupedData = data.reduce((acc, item) => {
                     const date = new Date(item.logDate).toISOString().split('T')[0];
                     if (!acc[date]) {
-                        acc[date] = { Info: 0, Warn: 0, Error: 0, Critical: 0 };
+                        acc[date] = { Info: 0, Warn: 0, Error: 0, Debug: 0 };
                     }
                     acc[date][item.level] = item.logCount;
                     return acc;
                 }, {});
 
+               
                 for (const [date, counts] of Object.entries(groupedData)) {
-                    chartData.push([date, counts.Info, counts.Warn, counts.Error, counts.Critical]);
+                    const total = counts.Info + counts.Warn + counts.Error + counts.Debug;
+                    if (total > 0) { 
+                        chartData.push([date, counts.Info, counts.Warn, counts.Error, counts.Debug]);
+                    }
                 }
 
                 //console.log('Chart Data:', chartData);
@@ -144,10 +236,10 @@ function drawLineChart() {
                     colors: ['#3366CC', '#FF9900', '#DC3912', '#990099'],
                     tooltip: { isHtml: true },
                     series: {
-                        0: { color: '#3366CC' }, 
-                        1: { color: '#FF9900' }, 
-                        2: { color: '#DC3912' }, 
-                        3: { color: '#990099' }  
+                        0: { color: '#3366CC' },
+                        1: { color: '#FF9900' },
+                        2: { color: '#DC3912' },
+                        3: { color: '#990099' }
                     },
                     lineWidth: 2,
                     pointSize: 5
@@ -160,6 +252,7 @@ function drawLineChart() {
             });
     }
 }
+
 
 
 
@@ -196,7 +289,7 @@ function drawPieChart() {
                     'Info': 'blue',
                     'Warn': 'orange',
                     'Error': 'red',
-                    'Critical': 'purple'
+                    'Debug': 'purple'
                 };
                 data.forEach((item, index) => {
                     chartData.push([item.logLevel, Number(item.count)]);

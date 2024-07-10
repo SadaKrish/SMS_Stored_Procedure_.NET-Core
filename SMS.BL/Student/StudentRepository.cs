@@ -379,6 +379,34 @@ namespace SMS.BL.Student
 
             return response;
         }
+        /// <summary>
+        /// Showing search options
+        /// </summary>
+        /// <param name="searchModel"></param>
+        /// <returns></returns>
+        public RepositoryResponse<IEnumerable<StudentBO>> GetStudentsByTerm(SearchViewModel searchModel)
+        {
+            var response = new RepositoryResponse<IEnumerable<StudentBO>>();
+            try
+            {
+                var parameters = new[]
+                {
+            new SqlParameter("@term", (object)searchModel.SearchText ?? DBNull.Value),
+            new SqlParameter("@category", (object)searchModel.SearchCategory ?? DBNull.Value)
+        };
+                var results = _context.Students.FromSqlRaw("EXEC usp_GetStudentSearchSuggestions @term, @category", parameters)
+                                               .ToList();
+                response.Data = results;
+                response.Success = true;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Messages.Add($"{ex.Message}");
+            }
+            return response;
+        }
+
 
         /// <summary>
         /// Check whether the student is allocated for subject

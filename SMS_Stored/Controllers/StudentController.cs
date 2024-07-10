@@ -24,6 +24,8 @@ using SMS.ViewModel.RepositoryResponse;
 using SMS.ViewModel.StaticData;
 using SMS.ViewModel.Student;
 using System.Diagnostics.Eventing.Reader;
+using ClosedXML.Excel;
+using Rotativa.AspNetCore;
 
 
 namespace SMS_Stored.Controllers
@@ -146,7 +148,7 @@ namespace SMS_Stored.Controllers
                 }
                 else
                 {
-                    _logger.LogError("User attempt to submit form without filling necessary fields");
+                    _logger.LogError("User attempt to submit form without filling necessary fields or existence data");
                     return Json(new { success = false, message = response.Messages });
                 }
             }
@@ -211,10 +213,12 @@ namespace SMS_Stored.Controllers
             var errorResponse = new ErrorResponse();
             try
             {
+                _logger.LogDebug("Checked the registration number existence");
                 var response = _studentRepository.DoesStudentRegNoExist(regNo);
 
                 if (response.Success)
                 {
+                    
                     return Json(new { exists = response.Data });
                 }
                 else
@@ -243,14 +247,16 @@ namespace SMS_Stored.Controllers
             var errorResponse= new ErrorResponse();
             try
             {
+                _logger.LogDebug("Checked the display name existence");
                 var response = _studentRepository.DoesStudentDisplayNameExist(displayName);
                 if (response.Success)
                 {
+                    _logger.LogDebug("Checked the display name existence");
                     return Json(new { exists = response.Data });
                 }
                 else
                 {
-                    _logger.LogError("The display name entered is alredy exists.");
+                    _logger.LogWarning("The display name entered is alredy exists.");
                     return Json(new { success = false, message = response.Messages });
                 }
             }
@@ -273,9 +279,11 @@ namespace SMS_Stored.Controllers
             var errorResponse = new ErrorResponse();
             try
             {
+                _logger.LogDebug("Checked the Email Id existence");
                 var response = _studentRepository.DoesStudentEmailExist(email);
                 if (response.Success)
                 {
+                    
                     return Json(new { exists = response.Data });
                 }
                 else
@@ -388,8 +396,161 @@ namespace SMS_Stored.Controllers
                 return Json(new { success = false, message = errorResponse.Messages });
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="term"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public ActionResult GetSearchSuggestions(string term, string category)
+        {
+            var searchModel = new SearchViewModel
+            {
+                SearchText = term,
+                SearchCategory = category
+            };
 
-        
+            var response = _studentRepository.GetStudentsByTerm(searchModel);
 
+            if (response.Success)
+            {
+                var suggestions = response.Data.Select(s => new
+                {
+                    label = category switch
+                    {
+                        "StudentRegNo" => s.StudentRegNo,
+                        "FirstName" => s.FirstName,
+                        "LastName" => s.LastName,
+                        "DisplayName" => s.DisplayName,
+                        _ => s.StudentRegNo 
+                    },
+                    value = category switch
+                    {
+                        "StudentRegNo" => s.StudentRegNo,
+                        "FirstName" => s.FirstName,
+                        "LastName" => s.LastName,
+                        "DisplayName" => s.DisplayName,
+                        _ => s.StudentRegNo // Default case
+                    },
+                    data = s
+                }).ToList();
+
+                return Json(suggestions);
+            }
+            else
+            {
+                return Json(new { success = false, message = string.Join(", ", response.Messages) });
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        public ActionResult ExportToExcel(string status = "all")
+        {
+            var errorResponse = new ErrorResponse();
+            try
+            {
+
+                var response = new RepositoryResponse<IEnumerable<StudentBO>>();
+                bool? isEnabled = null;
+                if (status.ToLower() == "active")
+                {
+                    isEnabled = true;
+                }
+                else if (status.ToLower() == "inactive")
+                {
+                    isEnabled = false;
+                }
+
+                response = _studentRepository.GetStudents(isEnabled);
+
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("Students");
+                    var headerRow = worksheet.Row(1);
+                    worksheet.Cell(1, 1).Value = "Student Reg No";
+                    worksheet.Cell(1, 2).Value = "First Name";
+                    worksheet.Cell(1, 3).Value = "Middle Name";
+                    worksheet.Cell(1, 4).Value = "Last Name";
+                    worksheet.Cell(1, 5).Value = "Display Name";
+                    worksheet.Cell(1, 6).Value = "Email";
+                    worksheet.Cell(1, 7).Value = "Gender";
+                    worksheet.Cell(1, 8).Value = "DOB";
+                    worksheet.Cell(1, 9).Value = "Address";
+                    worksheet.Cell(1, 10).Value = "Contact No";
+                    worksheet.Cell(1, 11).Value = "Is Enable";
+
+                    headerRow.Style.Fill.BackgroundColor = XLColor.LightBlue;
+                    headerRow.Style.Font.Bold= true;
+
+                    int row = 2;
+                    foreach (var student in response.Data)
+                    {
+                        worksheet.Cell(row, 1).Value = student.StudentRegNo;
+                        worksheet.Cell(row, 2).Value = student.FirstName;
+                        worksheet.Cell(row, 3).Value = student.MiddleName;
+                        worksheet.Cell(row, 4).Value = student.LastName;
+                        worksheet.Cell(row, 5).Value = student.DisplayName;
+                        worksheet.Cell(row, 6).Value = student.Email;
+                        worksheet.Cell(row, 7).Value = student.Gender;
+                        worksheet.Cell(row, 8).Value = student.DOB;
+                        worksheet.Cell(row, 9).Value = student.Address;
+                        worksheet.Cell(row, 10).Value = student.ContactNo;
+                        worksheet.Cell(row, 11).Value = student.IsEnable ? "Yes" : "No";
+
+                        row++;
+
+                    }
+                    string fileName = $"StudentList_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        byte[] byteArray = stream.ToArray();
+                        return File(byteArray, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                    }
+                }
+            }
+            catch
+            {
+                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Students"));
+
+                return Json(new { success = errorResponse.Success, message = errorResponse.ErrorMessages });
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        public IActionResult ExportToPdf(string status = "all")
+        {
+            bool? isEnabled = null;
+            if (status.ToLower() == "active")
+            {
+                isEnabled = true;
+            }
+            else if (status.ToLower() == "inactive")
+            {
+                isEnabled = false;
+            }
+
+            var response = _studentRepository.GetStudents(isEnabled);
+            var students = response.Data;
+            var studentViewModel = new StudentViewModel
+            {
+                StudentList = students,
+                SearchView = new SearchViewModel() // Assuming you need to initialize this too
+            };
+            return new ViewAsPdf("_StudentListPdf", studentViewModel)
+            {
+                FileName = $"StudentList_{DateTime.Now:yyyyMMdd_HHmmss}.pdf",
+                PageSize = Rotativa.AspNetCore.Options.Size.A4,
+                PageOrientation = Rotativa.AspNetCore.Options.Orientation.Portrait,
+                CustomSwitches = "--disable-smart-shrinking --print-media-type --viewport-size 1280x1024"
+            };
+        }
     }
 }
