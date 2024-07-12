@@ -10,5 +10,14 @@ namespace SMS.ViewModel
     {
         public const string ShortDate = "dd/MM/yyyy";
         public const string LongDate = "dd/MM/yyyy hh:mm:ss tt";
+        public static string ToInputDateFormat(DateTime? date)
+        {
+            return date?.ToString(ShortDate);
+        }
+
+        public static string ToDisplayDateFormat(DateTime? date)
+        {
+            return date?.ToString("dd/MM/yyyy");
+        }
     }
 }

@@ -72,8 +72,8 @@ div .panel-body {
 }
 
 #button,#buttonBar,#downloadPdfBtn {
-    width: 200px;
-    margin-top: 10px;
+   width: 200px;
+    margin-top: 15px;
 }
 
 .autocomplete-item {
@@ -102,3 +102,6 @@ div .panel-body {
 .date-container input {
     flex: 1; 
 }
+
+
+

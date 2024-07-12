@@ -1,0 +1,46 @@
+﻿@model SMS.ViewModel.Subject.SubjectViewModel
+<div class="table-responsive">
+    <table id="subjectlist" class="table table-bordered table-striped" style="text-align:center; width: 100%;">
+        <thead style="text-align:center;">
+            <tr>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.SubjectList.First().SubjectCode)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.SubjectList.First().Name)</th>  
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.SubjectList.First().IsEnable)</th>
+                <th style="background-color: #cbf5ee;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.SubjectList != null && Model.SubjectList.Any())
+            {
+                @foreach (var subject in Model.SubjectList)
+                {
+                    <tr data-subject-id="@subject.SubjectID">
+                        <td>@subject.SubjectCode</td>
+                        <td>@subject.Name</td>
+                        <td>
+                            <input type="checkbox" id="subjectCheckbox_@subject.SubjectID" @(subject.IsEnable ? "checked" : "")
+                                   onclick="ToggleEnable(@subject.SubjectID, this.checked, '@subject.Name.Replace("'", "\\'")')" />
+                        </td>
+                        <td id="subject-status-@subject.SubjectID">
+
+                            <a class="btn" style="background-color:#cbf5ee;" href="javascript:void(0);" onclick="LoadEditPage(@subject.SubjectID)">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a class="btn" style="background-color:#cbf5ee;" href="#" onclick="Delete(@subject.SubjectID)">
+                                <i class="bi bi-trash" style="color:red;"></i>
+                            </a>
+
+                        </td>
+                    </tr>
+                }
+            }
+            @*  else
+            {
+            <tr>
+            <td colspan="12">No records found.</td>
+            </tr>
+            } *@
+        </tbody>
+    </table>
+</div>
+

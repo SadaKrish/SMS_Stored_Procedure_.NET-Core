@@ -1,0 +1,36 @@
+﻿/*Date picker style on form*/
+#dobField {
+    padding-right: 30px;
+    box-sizing: border-box;
+}
+.datepicker-icon {
+    position: absolute;
+    right: 22px;
+    top: 58.5%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    color: #000;
+}
+
+.ui-datepicker-trigger {
+    display: none;
+}
+
+.datepicker-container {
+    position: relative;
+}
+
+.fr-div {
+    margin-bottom: 10px;
+}
+
+.control-label, .form-control, .form-select {
+    font-size: 12px;
+}
+
+span {
+    color: #007bff;
+}

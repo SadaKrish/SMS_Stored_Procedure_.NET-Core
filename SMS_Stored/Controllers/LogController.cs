@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿/// <summary>
+///
+/// </summary>
+/// <author>Sadakshini</author>
+using Microsoft.AspNetCore.Mvc;
 using Rotativa.AspNetCore;
 using SMS.BL.Log.Interface;
 using SMS.Model.Log;
@@ -179,6 +183,7 @@ namespace SMS_Stored.Controllers
                 PageOrientation = Rotativa.AspNetCore.Options.Orientation.Portrait,
                 CustomSwitches = "--disable-smart-shrinking --print-media-type --viewport-size 1280x1024"
             };
+
         }
 
     }

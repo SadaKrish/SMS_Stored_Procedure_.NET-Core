@@ -1,0 +1,13 @@
+﻿@model SMS.ViewModel.Teacher.SearchViewModel
+
+
+<form id="search" asp-action="" asp-controller="Student" method="get" class="search-container" style="margin-left:10px;">
+
+    <select id="searchCategory" name="SearchCategory" asp-for="SearchCategory" >
+        <option value="TeacherRegNo">Teacher Reg No</option>
+        <option value="FirstName">First name</option>
+        <option value="LastName">Last Name</option>
+        <option value="DisplayName">Display Name</option>
+    </select>
+    <input type="text" name="SearchText" id="customSearchBox" placeholder="Search..." asp-for="SearchText" />
+</form>

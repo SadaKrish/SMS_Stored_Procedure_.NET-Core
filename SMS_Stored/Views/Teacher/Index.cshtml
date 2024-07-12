@@ -1,0 +1,56 @@
+﻿@model SMS.ViewModel.Teacher.TeacherViewModel
+@{
+    ViewBag.Title = "Teacher";
+
+}
+<link href="~/css/modulestylesheet.css" rel="stylesheet" />
+
+<div class="card panel-default">
+    <div class="panel-heading">
+        <h2 class="card-header">Teacher</h2>
+    </div>
+
+    <div class="panel-body card-body">
+        <div class="controls-container row">
+            <div class="col-md-6">
+                <a class="btn btn-outline-primary" style="margin: 10px; background-color: #cbf5ee;" onclick="LoadCreatePage()" id="button"> <i class="bi bi-plus"></i>  Add New Teacher</a>
+
+                <a href="@Url.Action("ExportToExcel", "Teacher")" class="btn btn-outline-primary" style="margin: 10px; background-color: #cbf5ee;">Download Excel<i class="bi bi-file-excel"></i> </a>
+                <a href="@Url.Action("ExportToPdf", "Teacher", new { status = "all" })" class="btn btn-outline-primary" style="margin: 10px; background-color: #cbf5ee;">Download PDF <i class="bi bi-file-pdf"></i></a>
+            </div>
+           
+
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div id="filterView">
+                            @await Html.PartialAsync("_TeacherFilterView")
+                        </div>
+                    </div>
+                    <div class="col-md-4 justify-content-end">
+                        <div class="searchForm">
+                            @await Html.PartialAsync("_TeacherSearchView", Model.SearchView)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+           
+
+
+        </div>
+        <div id="teacherslist">
+            @await Html.PartialAsync("_TeacherList", Model)
+        </div>
+
+    </div>
+</div>
+
+<div class="col-md-4" id="createoredit">
+    <!--Partial view-->
+</div>
+
+
+@section scripts {
+    <script src="~/js/teacher.js" asp-append-version="true"></script>
+}

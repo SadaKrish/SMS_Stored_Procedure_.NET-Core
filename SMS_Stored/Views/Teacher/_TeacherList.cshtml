@@ -1,0 +1,81 @@
+﻿@model SMS.ViewModel.Teacher.TeacherViewModel
+<div class="table-responsive">
+    <table id="teacherlist" class="table table-bordered table-striped" style="text-align:center; width: 100%;">
+        <thead style="text-align:center;">
+            <tr>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().TeacherRegNo)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().FirstName)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().MiddleName)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().LastName)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().DisplayName)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().Email)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().Gender)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().DOB)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().Address)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().ContactNo)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().IsEnable)</th>
+                <th style="background-color: #cbf5ee;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.TeacherList != null && Model.TeacherList.Any())
+            {
+                @foreach (var teacher in Model.TeacherList)
+                {
+                    <tr data-teacher-id="@teacher.TeacherID">
+                        <td>@teacher.TeacherRegNo</td>
+                        <td>@teacher.FirstName</td>
+                        <td>@teacher.MiddleName</td>
+                        <td>@teacher.LastName</td>
+                        <td>@teacher.DisplayName</td>
+                        <td>
+                            <button class="mail-icon" data-email="@teacher.Email" onclick="copyDataToClipboard('@teacher.Email',this)">
+                                <i class="bi bi-envelope"></i>
+                            </button>
+                            <div class="copiedMessage" style="display: none;">Copied!</div>
+                        </td>
+                        <td>@teacher.Gender</td>
+                        <td class="text-center">
+                            @if (teacher.DOB.HasValue)
+                            {
+                                @teacher.DOB.Value.ToString(SMS.ViewModel.DateFormat.ShortDate)
+                            }
+                            else
+                            {
+                                <span>N/A</span>
+                            }
+                        </td>
+                        <td>@teacher.Address</td>
+                        <td>
+                            <button class="mail-icon" data-contact="@teacher.ContactNo" onclick="copyDataToClipboard('@teacher.ContactNo', this)">
+                                <i class="bi bi-telephone"></i>
+                            </button>
+                            <div class="copiedMessage" style="display: none;">Copied!</div>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="teacherCheckbox_@teacher.TeacherID" @(teacher.IsEnable ? "checked" : "")
+                                   onclick="ToggleEnable(@teacher.TeacherID, this.checked, '@teacher.DisplayName.Replace("'", "\\'")')" />
+                        </td>
+                        <td id="teacher-status-@teacher.TeacherID">
+
+                            <a class="btn" style="background-color:#cbf5ee;" href="javascript:void(0);" onclick="LoadEditPage(@teacher.TeacherID)">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a class="btn" style="background-color:#cbf5ee;" href="#" onclick="Delete(@teacher.TeacherID)">
+                                <i class="bi bi-trash" style="color:red;"></i>
+                            </a>
+
+                        </td>
+                    </tr>
+                }
+            }
+            @*  else
+            {
+            <tr>
+            <td colspan="12">No records found.</td>
+            </tr>
+            } *@
+        </tbody>
+    </table>
+</div>
+

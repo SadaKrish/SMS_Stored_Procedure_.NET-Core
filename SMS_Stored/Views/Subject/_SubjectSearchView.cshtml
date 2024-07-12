@@ -1,0 +1,11 @@
+﻿@model SMS.ViewModel.Subject.SearchViewModel
+
+
+<form id="search" asp-action="" asp-controller="Subject" method="get" class="search-container">
+
+    <select id="searchCategory" name="SearchCategory" asp-for="SearchCategory">
+        <option value="SubjectCode">Subject Code</option>
+        <option value="Name">Name</option>
+    </select>
+    <input type="text" name="SearchText" id="customSearchBox" placeholder="Search..." asp-for="SearchText" />
+</form>

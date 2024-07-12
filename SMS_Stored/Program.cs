@@ -8,6 +8,10 @@ using SMS.BL.Log;
 using SMS.BL.Log.Interface;
 using SMS.BL.Student;
 using SMS.BL.Student.Interface;
+using SMS.BL.Subject;
+using SMS.BL.Subject.Interface;
+using SMS.BL.Teacher;
+using SMS.BL.Teacher.Interface;
 using SMS.Data;
 using System.Configuration;
 using System.Globalization;
@@ -23,6 +27,8 @@ builder.Services.AddDbContext<SMS_StoredContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("SMS_StoredContext")));
     // Add services to the container.
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
+builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<ILogRepository, LogRepository>();
 builder.Services.AddControllersWithViews();
 

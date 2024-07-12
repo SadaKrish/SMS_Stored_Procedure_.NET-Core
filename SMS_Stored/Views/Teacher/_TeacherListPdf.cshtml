@@ -1,0 +1,66 @@
+﻿@model SMS.ViewModel.Teacher.TeacherViewModel
+<style>
+    .pdf-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 10px;
+    }
+
+        .pdf-table th, .pdf-table td {
+            border: 1px solid #000;
+            padding: 4px;
+            text-align: center;
+            word-wrap: break-word;
+        }
+
+        .pdf-table th {
+            background-color: #cbf5ee;
+        }
+
+        .pdf-table td {
+            max-width: 100px; /* Adjust this as needed */
+        }
+</style>
+<div class="table-responsive">
+    <p></p>
+    <table class="pdf-table">
+        <thead>
+            <tr>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().TeacherRegNo)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().FirstName)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().MiddleName)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().LastName)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().DisplayName)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().Email)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().Gender)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().DOB)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().Address)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().ContactNo)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.TeacherList.First().IsEnable)</th>
+                <th style="background-color: #cbf5ee;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.TeacherList != null && Model.TeacherList.Any())
+            {
+                @foreach (var teacher in Model.TeacherList)
+                {
+                    <tr data-student-id="@teacher.TeacherID">
+                        <td>@teacher.TeacherRegNo</td>
+                        <td>@teacher.FirstName</td>
+                        <td>@teacher.MiddleName</td>
+                        <td>@teacher.LastName</td>
+                        <td>@teacher.DisplayName</td>
+                        <td>@teacher.Email</td>
+                        <td>@teacher.Gender</td>
+                        <td>@teacher.DOB</td>
+                        <td>@teacher.Address</td>
+                        <td>@teacher.ContactNo</td>
+                        <td>@teacher.IsEnable</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+

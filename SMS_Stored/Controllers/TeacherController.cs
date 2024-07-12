@@ -2,74 +2,52 @@
 ///
 /// </summary>
 /// <author>Sadakshini</author>
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlTypes;
-using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Threading.Tasks;
-using Azure;
-using Microsoft.Extensions.Logging;
-using NLog;
+using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using SMS.BL.Student.Interface;
-using SMS.Model.Student;
+using Rotativa.AspNetCore;
+using SMS.BL.Teacher.Interface;
+using SMS.Model.Teacher;
 using SMS.ViewModel.ErrorResponse;
 using SMS.ViewModel.RepositoryResponse;
 using SMS.ViewModel.StaticData;
-using SMS.ViewModel.Student;
-using System.Diagnostics.Eventing.Reader;
-using ClosedXML.Excel;
-using Rotativa.AspNetCore;
-using System.Text.RegularExpressions;
 
+using SMS.ViewModel.Teacher;
 
 namespace SMS_Stored.Controllers
 {
-    public class StudentController : Controller
+    public class TeacherController : Controller
     {
-        private readonly IStudentRepository _studentRepository;
-        private readonly ILogger<StudentController>_logger;
-        
+        private readonly ITeacherRepository _teacherRepository;
+        private readonly ILogger<TeacherController> _logger;
 
-        public StudentController(IStudentRepository studentRepository,ILogger<StudentController> logger)
+
+        public TeacherController(ITeacherRepository teacherRepository, ILogger<TeacherController> logger)
         {
-            _studentRepository = studentRepository;
+            _teacherRepository = teacherRepository;
             _logger = logger;
         }
-        /// <summary>
-        /// Index page view
-        /// </summary>
-        /// <returns></returns>
+
         public IActionResult Index()
         {
-            _logger.LogInformation("Index page view requested");
-            var viewModel = new StudentViewModel
+            var viewModel = new TeacherViewModel
             {
-                StudentList = new List<StudentBO>(),
-                SearchView = new SearchViewModel() 
+                TeacherList = new List<TeacherBO>(),
+                SearchView=new SearchViewModel()
             };
             return View(viewModel);
         }
-
         /// <summary>
-        /// Get the student details
+        /// Get All Teachers
         /// </summary>
         /// <param name="status"></param>
         /// <returns></returns>
         [HttpGet]
-        public ActionResult GetStudents(string status = "all")
+        public ActionResult GetTeachers(string status = "all")
         {
             var errorResponse = new ErrorResponse();
             try
             {
-                _logger.LogInformation("GetStudents method called with status:{ Status}", status);
-                var response = new RepositoryResponse<IEnumerable<StudentBO>>();
+                var response = new RepositoryResponse<IEnumerable<TeacherBO>>();
                 bool? isEnabled = null;
                 if (status.ToLower() == "active")
                 {
@@ -79,18 +57,15 @@ namespace SMS_Stored.Controllers
                 {
                     isEnabled = false;
                 }
-
-                response = _studentRepository.GetStudents(isEnabled);
-
+                response = _teacherRepository.GetTeachers(isEnabled);
                 if (response.Success && response.Data != null && response.Data.Any())
                 {
-                    var viewModel = new StudentViewModel
+                    var viewModel = new TeacherViewModel
                     {
-                        StudentList = response.Data,
+                        TeacherList = response.Data,
                         SearchView = new SearchViewModel()
-
                     };
-                    return PartialView("_StudentList", viewModel);
+                    return PartialView("_TeacherList", viewModel);
                 }
                 else
                 {
@@ -98,90 +73,75 @@ namespace SMS_Stored.Controllers
                     return new JsonResult(errorResponse);
                 }
             }
-            catch 
+            catch (Exception ex)
             {
-                _logger.LogError("Error occurred while getting students");
-                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Students"));
-
-                return Json(new { success = errorResponse.Success, message = errorResponse.ErrorMessages });
+                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Teachers"));
+                return new JsonResult(new { success = errorResponse.Success, message = errorResponse.ErrorMessages });
             }
         }
 
-        /// <summary>
-        /// add or edit student details
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         [HttpGet]
-        public ActionResult UpsertStudent(long id = 0)
+        public ActionResult UpsertTeacher(long id = 0)
         {
             if (id == 0)
             {
-                _logger.LogInformation("UpsertStudent method called to add a new Student");
-                return PartialView("_Upsert", new StudentBO());
+               // _logger.LogInformation("UpsertTeacher method called to add a new Teacher");
+                return PartialView("_UpsertTeacher", new TeacherBO());
             }
             else
             {
                 // Edit existing student
-                _logger.LogWarning("UpsertStudent method called to edit student with ID: {ID}", id);
-                var response = _studentRepository.GetStudentByID(id);
+                //_logger.LogWarning("UpsertTeacher method called to edit teacher with ID: {ID}", id);
+                var response = _teacherRepository.GetTeacherByID(id);
                 if (!response.Success || response.Data == null)
                 {
                     return NotFound();
                 }
-                return PartialView("_Upsert", response.Data);
+                return PartialView("_UpsertTeacher", response.Data);
             }
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult UpsertStudent(StudentBO student)
+        public ActionResult UpsertTeacher(TeacherBO teacher)
         {
             var errorResponse = new ErrorResponse();
             try
             {
                 var response = new RepositoryResponse<bool>();
-                response = _studentRepository.UpsertStudent(student);
+                response = _teacherRepository.UpsertTeacher(teacher);
 
                 if (response.Success)
                 {
                     return Json(new { success = true, message = response.Messages });
-                   
+
                 }
                 else
                 {
-                    _logger.LogError("User attempt to submit form without filling necessary fields or existence data");
+                   // _logger.LogError("User attempt to submit form without filling necessary fields or existence data");
                     return Json(new { success = false, message = response.Messages });
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                
+
                 errorResponse.Messages.Add(string.Format(StaticMessages.Fill_Form));
-                _logger.LogError(ex, "An error occurred while add or edit a student ");
+               // _logger.LogError(ex, "An error occurred while add or edit a student ");
                 return Json(new { success = errorResponse.Success, message = errorResponse.ErrorMessages });
             }
         }
-
-
-
-        /// <summary>
-        /// delete the student details
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         [HttpPost]
-        public ActionResult DeleteStudent(long id)
+        public ActionResult DeleteTeacher(long id)
         {
             var errorResponse = new ErrorResponse();
-           
-           // bool requiresConfirmation;
+
+            // bool requiresConfirmation;
             try
             {
-                _logger.LogInformation("Delete Student method called to delete student with ID: {ID}", id);
+                _logger.LogInformation("Delete Teacher method called to delete teacher with ID: {ID}", id);
                 var response = new RepositoryResponse<bool>();
-               // string message;
+                // string message;
 
-                response = _studentRepository.DeleteStudent(id);
+                response = _teacherRepository.DeleteTeacher(id);
 
                 if (response.Success)
                 {
@@ -189,15 +149,15 @@ namespace SMS_Stored.Controllers
                 }
                 else
                 {
-                    _logger.LogWarning("Delete method called to delete student with ID: {ID}", id);
-                    
-                    return Json(new { success = false,  message = response.Messages });
+                    _logger.LogWarning("Delete method called to delete teacher with ID: {ID}", id);
+
+                    return Json(new { success = false, message = response.Messages });
                 }
 
             }
-            catch 
+            catch
             {
-                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Students"));
+                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Teachers"));
 
                 return Json(new { success = errorResponse.Success, message = errorResponse.ErrorMessages });
             }
@@ -209,17 +169,17 @@ namespace SMS_Stored.Controllers
         /// <param name="regNo"></param>
         /// <returns></returns>
         [HttpGet]
-        public IActionResult CheckStudentRegNoExists(string regNo)
+        public IActionResult CheckTeacherRegNoExists(string regNo)
         {
             var errorResponse = new ErrorResponse();
             try
             {
                 _logger.LogDebug("Checked the registration number existence");
-                var response = _studentRepository.DoesStudentRegNoExist(regNo);
+                var response = _teacherRepository.DoesTeacherRegNoExist(regNo);
 
                 if (response.Success)
                 {
-                    
+
                     return Json(new { exists = response.Data });
                 }
                 else
@@ -230,7 +190,7 @@ namespace SMS_Stored.Controllers
             }
             catch (Exception ex)
             {
-                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Student Registration Number"));
+                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Teacher Registration Number"));
                 _logger.LogError(ex, "An error occurred while checking the registration number: {regNo}", regNo);
 
                 return Json(new { success = false, message = errorResponse.Messages, exception = ex.Message });
@@ -243,13 +203,13 @@ namespace SMS_Stored.Controllers
         /// <param name="displayName"></param>
         /// <returns></returns>
         [HttpGet]
-        public IActionResult CheckStudentDisplayNameExists(string displayName)
+        public IActionResult CheckTeacherDisplayNameExists(string displayName)
         {
-            var errorResponse= new ErrorResponse();
+            var errorResponse = new ErrorResponse();
             try
             {
                 _logger.LogDebug("Checked the display name existence");
-                var response = _studentRepository.DoesStudentDisplayNameExist(displayName);
+                var response = _teacherRepository.DoesTeacherDisplayNameExist(displayName);
                 if (response.Success)
                 {
                     _logger.LogDebug("Checked the display name existence");
@@ -263,8 +223,8 @@ namespace SMS_Stored.Controllers
             }
             catch (Exception ex)
             {
-                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Student Display name"));
-                errorResponse.Messages.Add(ex.Message); 
+                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Teacher Display name"));
+                errorResponse.Messages.Add(ex.Message);
 
                 return Json(new { success = false, message = errorResponse.Messages });
             }
@@ -275,16 +235,16 @@ namespace SMS_Stored.Controllers
         /// <param name="email"></param>
         /// <returns></returns>
         [HttpGet]
-        public IActionResult CheckStudentEmailExists(string email)
+        public IActionResult CheckTeacherEmailExists(string email)
         {
             var errorResponse = new ErrorResponse();
             try
             {
                 _logger.LogDebug("Checked the Email Id existence");
-                var response = _studentRepository.DoesStudentEmailExist(email);
+                var response = _teacherRepository.DoesTeacherEmailExist(email);
                 if (response.Success)
                 {
-                    
+
                     return Json(new { exists = response.Data });
                 }
                 else
@@ -295,21 +255,21 @@ namespace SMS_Stored.Controllers
             }
             catch
             {
-                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Student Email"));
+                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Teacher Email"));
                 return Json(new { success = false, message = errorResponse.Messages });
             }
         }
         /// <summary>
         /// Check the student allocation status
         /// </summary>
-        /// <param name="studentID"></param>
+        /// <param name="teacherID"></param>
         /// <returns></returns>
-        public JsonResult CheckStudentAllocationStatus(long studentID)
+        public JsonResult CheckTeacherAllocationStatus(long teacherID)
         {
             var errorResponse = new ErrorResponse();
             try
             {
-                var response = _studentRepository.CheckStudentAllocationStatus(studentID);
+                var response = _teacherRepository.CheckTeacherAllocationStatus(teacherID);
                 if (response.Success)
                 {
                     return Json(new { exists = response.Data });
@@ -321,28 +281,28 @@ namespace SMS_Stored.Controllers
             }
             catch
             {
-                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Student Allocation"));
+                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Teacher Allocation"));
                 return Json(new { success = false, message = errorResponse.Messages });
             }
 
         }
-           
-       
+
+
         /// <summary>
         /// Change the status of a student
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult ToggleEnableStudent(long id)
+        public ActionResult ToggleEnableTeacher(long id)
         {
             var errorResponse = new ErrorResponse();
             try
             {
-                var response = _studentRepository.ToggleStudentEnable(id);
+                var response = _teacherRepository.ToggleTeacherEnable(id);
                 if (response.Success)
                 {
-                    _logger.LogError("The status of student {id} is updated",id);
+                    _logger.LogWarning("The status of teacher {id} is updated", id);
                     return Json(new { success = true, message = response.Messages });
                 }
                 else
@@ -351,48 +311,48 @@ namespace SMS_Stored.Controllers
                     return Json(new { success = false, message = response.Messages });
                 }
             }
-            catch 
+            catch
             {
-                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Student Status"));
+                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Teacher Status"));
                 return Json(new { success = false, message = errorResponse.Messages });
             }
 
-           
+
         }
-       /// <summary>
-       /// Search filter
-       /// </summary>
-       /// <param name="model"></param>
-       /// <returns></returns>
+        /// <summary>
+        /// Search filter
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
-        public ActionResult SearchStudents(SearchViewModel model)
+        public ActionResult SearchTeacher(SearchViewModel model)
         {
             var errorResponse = new ErrorResponse();
             try
             {
-                var response = _studentRepository.SearchStudents(model);
+                var response = _teacherRepository.SearchTeachers(model);
                 if (response.Success && response.Data != null && response.Data.Any())
                 {
-                    var viewModel = new StudentViewModel
+                    var viewModel = new TeacherViewModel
                     {
-                        StudentList = response.Data,
+                        TeacherList = response.Data,
                         SearchView = new SearchViewModel()
 
                     };
-                    return PartialView("_StudentList", viewModel);
+                    return PartialView("_TeacherList", viewModel);
                 }
                 else
                 {
-                    _logger.LogError("No Students found");
+                    _logger.LogError("No Teachers found");
                     return Json(new { success = false, message = response.Messages });
                 }
 
             }
             catch
             {
-                _logger.LogError("Error in search students");
+                _logger.LogError("Error in search teachers");
                 errorResponse.Messages.Add(string.Format(StaticMessages.Data_Not_Found));
-               // errorResponse.Messages.Add(ex.Message); 
+                // errorResponse.Messages.Add(ex.Message); 
 
                 return Json(new { success = false, message = errorResponse.Messages });
             }
@@ -411,7 +371,7 @@ namespace SMS_Stored.Controllers
                 SearchCategory = category
             };
 
-            var response = _studentRepository.GetStudentsByTerm(searchModel);
+            var response = _teacherRepository.GetTeachersByTerm(searchModel);
 
             if (response.Success)
             {
@@ -419,19 +379,19 @@ namespace SMS_Stored.Controllers
                 {
                     label = category switch
                     {
-                        "StudentRegNo" => s.StudentRegNo,
+                        "TeacherRegNo" => s.TeacherRegNo,
                         "FirstName" => s.FirstName,
                         "LastName" => s.LastName,
                         "DisplayName" => s.DisplayName,
-                        _ => s.StudentRegNo 
+                        _ => s.TeacherRegNo
                     },
                     value = category switch
                     {
-                        "StudentRegNo" => s.StudentRegNo,
+                        "TeacherRegNo" => s.TeacherRegNo,
                         "FirstName" => s.FirstName,
                         "LastName" => s.LastName,
                         "DisplayName" => s.DisplayName,
-                        _ => s.StudentRegNo // Default case
+                        _ => s.TeacherRegNo // Default case
                     },
                     data = s
                 }).ToList();
@@ -454,7 +414,7 @@ namespace SMS_Stored.Controllers
             try
             {
 
-                var response = new RepositoryResponse<IEnumerable<StudentBO>>();
+                var response = new RepositoryResponse<IEnumerable<TeacherBO>>();
                 bool? isEnabled = null;
                 if (status.ToLower() == "active")
                 {
@@ -465,13 +425,13 @@ namespace SMS_Stored.Controllers
                     isEnabled = false;
                 }
 
-                response = _studentRepository.GetStudents(isEnabled);
+                response = _teacherRepository.GetTeachers(isEnabled);
 
                 using (var workbook = new XLWorkbook())
                 {
-                    var worksheet = workbook.Worksheets.Add("Students");
+                    var worksheet = workbook.Worksheets.Add("Teachers");
                     var headerRow = worksheet.Row(1);
-                    worksheet.Cell(1, 1).Value = "Student Reg No";
+                    worksheet.Cell(1, 1).Value = "Teacher Reg No";
                     worksheet.Cell(1, 2).Value = "First Name";
                     worksheet.Cell(1, 3).Value = "Middle Name";
                     worksheet.Cell(1, 4).Value = "Last Name";
@@ -484,12 +444,12 @@ namespace SMS_Stored.Controllers
                     worksheet.Cell(1, 11).Value = "Is Enable";
 
                     headerRow.Style.Fill.BackgroundColor = XLColor.LightBlue;
-                    headerRow.Style.Font.Bold= true;
+                    headerRow.Style.Font.Bold = true;
 
                     int row = 2;
                     foreach (var student in response.Data)
                     {
-                        worksheet.Cell(row, 1).Value = student.StudentRegNo;
+                        worksheet.Cell(row, 1).Value = student.TeacherRegNo;
                         worksheet.Cell(row, 2).Value = student.FirstName;
                         worksheet.Cell(row, 3).Value = student.MiddleName;
                         worksheet.Cell(row, 4).Value = student.LastName;
@@ -504,7 +464,7 @@ namespace SMS_Stored.Controllers
                         row++;
 
                     }
-                    string fileName = $"StudentList_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+                    string fileName = $"TeacherList_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
                     using (var stream = new MemoryStream())
                     {
@@ -516,7 +476,7 @@ namespace SMS_Stored.Controllers
             }
             catch
             {
-                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Students"));
+                errorResponse.Messages.Add(string.Format(StaticMessages.Error_Load_Data, "Teachers"));
 
                 return Json(new { success = errorResponse.Success, message = errorResponse.ErrorMessages });
             }
@@ -538,14 +498,14 @@ namespace SMS_Stored.Controllers
                 isEnabled = false;
             }
 
-            var response = _studentRepository.GetStudents(isEnabled);
-            var students = response.Data;
-            var studentViewModel = new StudentViewModel
+            var response = _teacherRepository.GetTeachers(isEnabled);
+            var teachers = response.Data;
+            var teacherViewModel = new TeacherViewModel
             {
-                StudentList = students,
-                SearchView = new SearchViewModel() 
+                TeacherList = teachers,
+                SearchView = new SearchViewModel()
             };
-            return new ViewAsPdf("_StudentListPdf", studentViewModel)
+            return new ViewAsPdf("_TeacherListPdf", teacherViewModel)
             {
                 FileName = $"StudentList_{DateTime.Now:yyyyMMdd_HHmmss}.pdf",
                 PageSize = Rotativa.AspNetCore.Options.Size.A4,
@@ -553,7 +513,5 @@ namespace SMS_Stored.Controllers
                 CustomSwitches = "--disable-smart-shrinking --print-media-type --viewport-size 1280x1024"
             };
         }
-
-
     }
 }

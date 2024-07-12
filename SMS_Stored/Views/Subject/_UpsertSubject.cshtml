@@ -1,0 +1,122 @@
+﻿@model SMS.Model.Subject.SubjectBO
+
+<link href="~/css/formstyle.css" rel="stylesheet" />
+<form id="subjectForm" asp-action="UpsertSubject" asp-controller="Subject" method="post" data-ajax="true" data-ajax-mode="replace" data-ajax-update="#createoredit">
+    <div class="container d-flex justify-content-center align-items-center w-100 m-2" style="min-height: calc(100vh - 100px); margin-bottom: 50px;">
+        <div class="card p-4 fr-div" style="max-width: 500px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); border-radius: 10px;">
+            @*<div class="col-md-12 ">*@
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @Html.AntiForgeryToken()
+
+            @Html.HiddenFor(model => model.SubjectID)
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="row form-group d-flex">
+                <div class="col-md-4">
+                    @Html.LabelFor(model => model.SubjectCode, new { @class = "control-label required" })
+                </div>
+                <div class="col-md p-2">
+                    @Html.EditorFor(model => model.SubjectCode, new { htmlAttributes = new { @class = "form-control", id = "subjectCode" } })
+                    @Html.ValidationMessageFor(model => model.SubjectCode, "", new { @class = "field-validation-error" })
+                    <span id="subCodeExistsMsg" class="text-danger"></span>
+
+                </div>
+            </div>
+            <div class="row form-group d-flex">
+                <div class="col-md-4">
+                    @Html.LabelFor(model => model.Name, new { @class = "control-label required" })
+                </div>
+                <div class="col-md p-2">
+                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", id = "subjectName" } })
+                    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "field-validation-error" })
+                    <span id="subNameExistsMsg" class="text-danger"></span>
+                </div>
+            </div>
+           
+            </div>
+            <div class="row form-group d-flex">
+                <div class="col-md-4">
+                    @Html.LabelFor(model => model.IsEnable, new { @class = "control-label" })
+                </div>
+                <div class="col-md p-2">
+                    @Html.CheckBoxFor(model => model.IsEnable, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+
+
+            <div class="form-group align-content-center">
+                <input type="submit" value="@(Model.SubjectID== null ? "Add" : "Update")" class="btn btn-primary" style="font-size:14px;" />
+                <button id="back-to-list" class="btn btn btn-secondary m-4" onclick="LoadList()">Back</button>
+            </div>
+
+
+        </div>
+    </div>
+</form>
+
+@{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+<script>
+    $(document).ready(function () {
+        // console.log("Hello");
+        $('.required').append('<span style="color: red">*</span>');
+    });
+    $(document).ready(function () {
+
+        $('#subjectForm').submit(function (event) {
+            event.preventDefault();
+
+            var form = $(this);
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function (response) {
+                    addSubjectSuccess(response);
+                },
+                error: function (xhr, status, error) {
+                    addSubjectFailure(xhr, status, error);
+                }
+            });
+        });
+        //client side validation check
+        $('#subjectCode').change(function () {
+            var regNo = $(this).val();
+            $.ajax({
+                url: '@Url.Action("CheckSubjectCodeExists", "Subject")',
+                type: 'GET',
+                data: { regNo: regNo },
+                success: function (data) {
+                    if (data.exists) {
+                        $('#subCodeExistsMsg').text('Subject code already exists.');
+                    } else {
+                        $('#subCodeExistsMsg').text('');
+                    }
+                },
+                error: function () {
+                    $('#subCodeExistsMsg').text('Error checking registration number.');
+                }
+            });
+        });
+        $('#subjectName').change(function () {
+            var displayName = $(this).val();
+            $.ajax({
+                url: '@Url.Action("CheckSubjectNameExists", "Subject")',
+                type: 'GET',
+                data: { displayName: displayName },
+                success: function (data) {
+                    if (data.exists) {
+                        $('#subNameExistsMsg').text('Subject Name already exists.');
+                    } else {
+                        $('#subNameExistsMsg').text('');
+                    }
+                },
+                error: function () {
+                    $('#subNameExistsMsg').text('Error checking display name.');
+                }
+            });
+        });
+    });
+
+</script>

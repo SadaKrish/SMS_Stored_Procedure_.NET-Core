@@ -1,9 +1,34 @@
 ﻿$(document).ready(function () {
     $('#pieChart').hide();
     $('#barChart').hide();
-    loadLogList();
+
+    var today = new Date();
+    var formattedToday = formatDateToDDMMYY(today);
+
+ 
+    $("#startDate, #endDate").val(formattedToday);
 
    
+    $("#startDate").datepicker({
+        dateFormat: "dd/mm/yy",
+        onSelect: function (selectedDate) {
+            var dateParts = selectedDate.split('/');
+            var startDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]); 
+            $("#endDate").datepicker("option", "minDate", startDate);
+            loadLogList();
+        }
+    });
+
+    $("#endDate").datepicker({
+        dateFormat: "dd/mm/yy",
+        onSelect: function (selectedDate) {
+            var dateParts = selectedDate.split('/');
+            var endDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]); 
+            $("#startDate").datepicker("option", "maxDate", endDate);
+            loadLogList();
+        }
+    });
+
     $('#logLevel').on('change', function () {
         loadLogList();
     });
@@ -11,22 +36,9 @@
     $('#startDate').on('change', function () {
         loadLogList();
     });
-    function validateDates() {
-        const startDate = new Date($('#startDate').val());
-        const endDate = new Date($('#endDate').val());
 
-        if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
-            if (endDate < startDate) {
-                $('#dateError').text('End date must be greater than or equal to start date.');
-            } else {
-                $('#dateError').text('');
-            }
-        }
-    }
     $('#endDate').on('change', function () {
-        validateDates();
         loadLogList();
-
     });
 
     $("#search").on("submit", function (event) {
@@ -42,87 +54,109 @@
         searchLogs();
     });
 
-    //$("#startDate").datepicker({
-    //    dateFormat: "dd/mm/yy",
-    //    changeMonth: true,
-    //    changeYear: true,
-    //    yearRange: "c-10:c+10" 
-    //});
+    $('#downloadPdfBtn').click(function (event) {
+        event.preventDefault();
 
-    //$("#endDate").datepicker({
-    //    dateFormat: "dd/mm/yy",
-    //    changeMonth: true,
-    //    changeYear: true,
-    //    yearRange: "c-10:c+10"
-    //});
-   
-    //var today = new Date();
-    //var day = String(today.getDate()).padStart(2, '0');
-    //var month = String(today.getMonth() + 1).padStart(2, '0');
-    //var year = today.getFullYear();
-    //var todayDate = year + '-' + month + '-' + day;
+      
+        const formDataArray = $('#AllFilterForm').serializeArray();
+        const formData = {};
 
-    //var startDateInput = $('#startDate');
-    //var endDateInput = $('#endDate');
+        formDataArray.forEach(item => {
+            formData[item.name] = item.value;
+        });
 
-    //if (!startDateInput.val()) {
-    //    startDateInput.val(todayDate);
-    //}
+        
+        if (formData.startDate) {
+            formData.startDate = convertDateFormat(formData.startDate);
+        }
+        if (formData.endDate) {
+            formData.endDate = convertDateFormat(formData.endDate);
+        }
 
-    //if (!endDateInput.val()) {
-    //    endDateInput.val(todayDate);
-    //}
-    //var dateFormat = "mm-yy-dd";
-    //var today = new Date();
-    //var from = $("#startDate")
-    //    .datepicker({
-    //        defaultDate: today,
-    //        changeMonth: true,
-    //        numberOfMonths: 1,
-    //        dateFormat: dateFormat
-    //    })
-    //    .on("change", function () {
-    //        to.datepicker("option", "minDate", getDate(this));
-    //    });
+     
+        const queryString = $.param(formData);
 
-    //var to = $("#endDate").datepicker({
-    //    defaultDate: today,
-    //    changeMonth: true,
-    //    numberOfMonths: 1,
-    //    dateFormat: dateFormat
-    //})
-    //    .on("change", function () {
-    //        from.datepicker("option", "maxDate", getDate(this));
-    //    });
+        $.ajax({
+            url: `/Log/ExportToPdf?${queryString}`,
+            type: 'GET',
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function (blob) {
+                var link = document.createElement('a');
+                var url = window.URL.createObjectURL(blob);
+                link.href = url;
+                link.download = `LogList_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '')}.pdf`; 
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            },
+            error: function (error) {
+                console.log('Error exporting PDF: ', error.responseText || error.statusText);
+            }
+        });
+    });
 
-    //function getDate(element) {
-    //    var date;
-    //    try {
-    //        date = $.datepicker.parseDate(dateFormat, element.value);
-    //    } catch (error) {
-    //        date = null;
-    //    }
-    //    return date;
-    //}
+    loadLogList();
 });
+function getFormData(formSelector) {
+    const formDataArray = $(formSelector).serializeArray();
+    const formData = {};
 
+    formDataArray.forEach(item => {
+        formData[item.name] = item.value;
+    });
 
-//Load the log table
+    if (formData.startDate) {
+        formData.startDate = convertDateFormat(formData.startDate);
+    }
+    if (formData.endDate) {
+        formData.endDate = convertDateFormat(formData.endDate);
+    }
+
+    return formData;
+}
+//Formating the date 
+function formatDateToDDMMYY(date) {
+    var day = String(date.getDate()).padStart(2, '0');
+    var month = String(date.getMonth() + 1).padStart(2, '0'); 
+    var year = date.getFullYear();
+    return day + '/' + month + '/' + year;
+}
+//converting date format
+function convertDateFormat(date) {
+    var dateParts = date.split('/');
+    return dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
+}
+
+// Load the log table
 function loadLogList() {
-    var logLevel = $('#logLevel').val();
-    var startDate = $('#startDate').val();
-    var endDate = $('#endDate').val();
+  
+    const formData = getFormData('#AllFilterForm');
+
+   
+    //var startDateObj = formData.find(obj => obj.name === 'startDate');
+    //var endDateObj = formData.find(obj => obj.name === 'endDate');
+
+    //if (startDateObj && startDateObj.value) {
+    //    startDateObj.value = convertDateFormat(startDateObj.value);
+    //}
+
+    //if (endDateObj && endDateObj.value) {
+    //    endDateObj.value = convertDateFormat(endDateObj.value);
+    //}
 
     $.ajax({
         url: '/Log/GetLogs',
         type: 'GET',
-        data: $('#AllFilterForm').serialize(),
+        data: $.param(formData),
         success: function (data) {
             if (data && data.length) {
                 $('#logsView').html(data);
                 initializeDataTable();
             } else {
-                $('#tableBody').html(' <td colspan="12">No records found.</td>');
+                $('#tableBody').html('<td colspan="12">No records found.</td>');
             }
         },
         error: function (error) {
@@ -130,6 +164,7 @@ function loadLogList() {
         }
     });
 }
+
 //DataTable
 function initializeDataTable() {
     if (!$.fn.DataTable.isDataTable('#logList')) {
@@ -143,28 +178,15 @@ function initializeDataTable() {
     }
 }
 
-//field filled with today's date as default
- document.addEventListener("DOMContentLoaded", function() {
-    var today = new Date();
-    var day = String(today.getDate()).padStart(2, '0');
-    var month = String(today.getMonth() + 1).padStart(2, '0'); 
-    var year = today.getFullYear();
-    var todayDate = year + '-' + month + '-' + day;
-    var startDateInput = document.getElementById('startDate');
-    var endDateInput = document.getElementById('endDate');
 
-    if (!startDateInput.value) {
-        startDateInput.value = todayDate;
-        }
+function formatDateToDDMMYY(date) {
+    var day = String(date.getDate()).padStart(2, '0');
+    var month = String(date.getMonth() + 1).padStart(2, '0'); 
+    var year = date.getFullYear();
+    return day + '/' + month + '/' + year;
+}
 
-    if (!endDateInput.value) {
-        endDateInput.value = todayDate;
-        }
- });
 
-$(document).ready(function () {
-    
-});
 
 
 //Back button
@@ -201,12 +223,26 @@ function drawLineChart() {
     google.charts.setOnLoadCallback(fetchAndDrawLineChart);
 
     function fetchAndDrawLineChart() {
-        const formData = $('#AllFilterForm').serialize();
+      
+        const formData = getFormData('#AllFilterForm');
+        //const formData = {};
 
-        fetch(`/Log/GetDailyLogCounts?${formData}`)
+        //formDataArray.forEach(item => {
+        //    formData[item.name] = item.value;
+        //});
+
+        //if (formData.startDate) {
+        //    formData.startDate = convertDateFormat(formData.startDate);
+        //}
+        //if (formData.endDate) {
+        //    formData.endDate = convertDateFormat(formData.endDate);
+        //}
+
+        const queryString = $.param(formData);
+
+        fetch(`/Log/GetDailyLogCounts?${queryString}`)
             .then(response => response.json())
             .then(data => {
-                //console.log('Fetched chart data:', data);
                 const chartData = [['Date', 'Info', 'Warn', 'Error', 'Debug']];
 
                 const groupedData = data.reduce((acc, item) => {
@@ -218,19 +254,17 @@ function drawLineChart() {
                     return acc;
                 }, {});
 
-               
                 for (const [date, counts] of Object.entries(groupedData)) {
                     const total = counts.Info + counts.Warn + counts.Error + counts.Debug;
-                    if (total > 0) { 
+                    if (total > 0) {
                         chartData.push([date, counts.Info, counts.Warn, counts.Error, counts.Debug]);
                     }
                 }
 
-                //console.log('Chart Data:', chartData);
                 const dataTable = google.visualization.arrayToDataTable(chartData);
                 const options = {
                     title: 'Daily Log Counts',
-                    hAxis: { title: 'Date', format: 'yyyy-MM-dd' },
+                    hAxis: { title: 'Date', format: 'dd-MM-yyyy' },
                     vAxis: { title: 'Count' },
                     legend: { position: 'top' },
                     colors: ['#3366CC', '#FF9900', '#DC3912', '#990099'],
@@ -273,11 +307,26 @@ function drawPieChart() {
 
     function fetchAndDrawChart() {
         
-        const formData = $('#AllFilterForm').serialize();
-        //console.log('Serialized Form Data:', formData); 
+        const formData = getFormData('#AllFilterForm');
+        //const formData = {};
+
+        //formDataArray.forEach(item => {
+        //    formData[item.name] = item.value;
+        //});
 
       
-        fetch(`/Log/GetLogCountsForChart?${formData}`)
+        //if (formData.startDate) {
+        //    formData.startDate = convertDateFormat(formData.startDate);
+        //}
+        //if (formData.endDate) {
+        //    formData.endDate = convertDateFormat(formData.endDate);
+        //}
+
+       
+        const queryString = $.param(formData);
+
+      
+        fetch(`/Log/GetLogCountsForChart?${queryString}`)
             .then(response => response.json())
             .then(data => {
                 //console.log('Fetched chart data:', data); 
@@ -323,6 +372,7 @@ function drawPieChart() {
                 console.error('Error fetching chart data:', error);
             });
     }
+   
 }
 
 
