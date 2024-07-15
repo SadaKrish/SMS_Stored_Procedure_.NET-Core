@@ -4,6 +4,8 @@ using NLog;
 using NLog.Web;
 using Rotativa.AspNetCore;
 using ServiceStack.Text;
+using SMS.BL.Allocation;
+using SMS.BL.Allocation.Interface;
 using SMS.BL.Log;
 using SMS.BL.Log.Interface;
 using SMS.BL.Student;
@@ -29,6 +31,7 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("SMS_StoredContex
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
+builder.Services.AddScoped<IAllocationRepository, AllocationRepository>();
 builder.Services.AddScoped<ILogRepository, LogRepository>();
 builder.Services.AddControllersWithViews();
 

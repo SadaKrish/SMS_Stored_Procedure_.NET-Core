@@ -11,23 +11,31 @@
     </div>
 
     <div class="panel-body card-body">
-        <div class="controls-container">
-            <a class="btn btn-outline-primary" style="margin: 10px; background-color: #cbf5ee;" onclick="LoadCreatePage()" id="button"> <i class="bi bi-plus"></i>  Add New Student</a>
+        <div class="controls-container row">
+            <div class="col-md-6">
+                <a class="btn btn-outline-primary" style="margin: 10px; background-color: #cbf5ee;" onclick="LoadCreatePage()" id="button"> <i class="bi bi-plus"></i>  Add New Student</a>
 
-            <a href="@Url.Action("ExportToExcel", "Student")" class="btn btn-outline-primary" style="margin: 10px; background-color: #cbf5ee;">Download Excel<i class="bi bi-file-excel"></i> </a>
-            <a href="@Url.Action("ExportToPdf", "Student", new { status = "all" })" class="btn btn-outline-primary" style="margin: 10px; background-color: #cbf5ee;">Download PDF <i class="bi bi-file-pdf"></i></a>
-
-
-            <div class="form-group filter">
-                <label for="statusFilter">Status:</label>
-                <select id="filterStatus">
-                    <option value="all">All</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">InActive</option>
-                </select>
+                <a href="@Url.Action("ExportToExcel", "Student")" class="btn btn-outline-primary" style="margin: 10px; background-color: #cbf5ee;">Download Excel<i class="bi bi-file-excel"></i> </a>
+                <a href="@Url.Action("ExportToPdf", "Student", new { status = "all" })" class="btn btn-outline-primary" style="margin: 10px; background-color: #cbf5ee;">Download PDF <i class="bi bi-file-pdf"></i></a>
             </div>
-            <div class="searchForm">
-                @await Html.PartialAsync("_StudentSearchView",Model.SearchView)
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group filter">
+                            <label for="statusFilter">Status:</label>
+                            <select id="filterStatus">
+                                <option value="all">All</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">InActive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 justify-content-end">
+                        <div class="searchForm">
+                            @await Html.PartialAsync("_StudentSearchView", Model.SearchView)
+                        </div>
+                    </div>
+                </div>
             </div>
           
 

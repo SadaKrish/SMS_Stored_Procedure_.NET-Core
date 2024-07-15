@@ -10,7 +10,6 @@ using SMS.Model.Teacher;
 using SMS.ViewModel.ErrorResponse;
 using SMS.ViewModel.RepositoryResponse;
 using SMS.ViewModel.StaticData;
-
 using SMS.ViewModel.Teacher;
 
 namespace SMS_Stored.Controllers
@@ -507,7 +506,7 @@ namespace SMS_Stored.Controllers
             };
             return new ViewAsPdf("_TeacherListPdf", teacherViewModel)
             {
-                FileName = $"StudentList_{DateTime.Now:yyyyMMdd_HHmmss}.pdf",
+                FileName = $"TeacherList_{DateTime.Now:yyyyMMdd_HHmmss}.pdf",
                 PageSize = Rotativa.AspNetCore.Options.Size.A4,
                 PageOrientation = Rotativa.AspNetCore.Options.Orientation.Portrait,
                 CustomSwitches = "--disable-smart-shrinking --print-media-type --viewport-size 1280x1024"

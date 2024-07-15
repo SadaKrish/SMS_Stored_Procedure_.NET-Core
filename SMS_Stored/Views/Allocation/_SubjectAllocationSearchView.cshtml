@@ -1,0 +1,13 @@
+﻿@model SMS.ViewModel.Allocation.SearchViewModel
+
+
+<form id="search" asp-action="" asp-controller="Allocation" method="get" class="search-container" style="margin-left:10px;">
+           
+    <select id="searchCategory" name="SearchCategory" asp-for="SearchCategory">
+                    <option value="TeacherRegNo">Teacher Reg No</option>
+                    <option value="DisplayName">Display name</option>
+                     <option value="SubjectCode">Last Name</option>
+                    <option value="SubjectName">Subject Name</option>
+                </select>
+    <input type="text" name="SearchText" id="customSearchBox" placeholder="Search..." asp-for="SearchText" />
+</form>

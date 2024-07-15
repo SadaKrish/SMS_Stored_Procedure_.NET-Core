@@ -1,4 +1,4 @@
-﻿@model SMS.ViewModel.Subject.SubjectViewModel
+﻿@model SMS.ViewModel.Allocation.StudentAllocationGroupedViewModel
 @{
     ViewBag.Title = "Subject";
 
@@ -7,7 +7,7 @@
 
 <div class="card panel-default">
     <div class="panel-heading">
-        <h2 class="card-header">Subject</h2>
+        <h2 class="card-header">Student Allocation</h2>
     </div>
 
     <div class="panel-body card-body">
@@ -24,19 +24,19 @@
                 <div class="row">
                     <div class="col-md-8">
                         <div id="filterView">
-                            @await Html.PartialAsync("_SubjectFilterView")
+                            @* @await Html.PartialAsync("_SubjectFilterView") *@
                         </div>
                     </div>
                     <div class="col-md-4 justify-content-end">
                         <div class="searchForm">
-                            @await Html.PartialAsync("_SubjectSearchView", Model.SearchView)
+                           @*  @await Html.PartialAsync("_SubjectSearchView") *@
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div id="subjectslist">
-            @await Html.PartialAsync("_SubjectList", Model)
+        <div id="studentsAllocationList">
+            @await Html.PartialAsync("_StudentAllocationList", Model)
         </div>
 
     </div>
@@ -48,5 +48,5 @@
 
 
 @section scripts {
-    <script src="~/js/subject.js" asp-append-version="true"></script>
+    <script src="~/js/studentAllocation.js" asp-append-version="true"></script>
 }

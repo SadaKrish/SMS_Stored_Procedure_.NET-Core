@@ -35,14 +35,14 @@ function loadSubjectList() {
         success: function (data) {
             $('#subjectslist').html(data);
             initializeDataTable();
-            //updateTeacherStatuses();
+            updateSubjectStatuses();
         },
         error: function (error) {
             console.log('Error loading subject data: ', error);
         }
     });
 }
-function searchTeachersOptions() {
+function searchSubjectsOptions() {
     $("#customSearchBox").autocomplete({
         source: function (request, response) {
             $.ajax({
@@ -91,7 +91,7 @@ function searchSubjects() {
             } else {
                 $('#subjectslist').html(response);
                 initializeDataTable();
-                updateTeacherStatuses();
+                updateSubjectStatuses();
             }
         },
         error: function (xhr, status, error) {
@@ -132,7 +132,7 @@ function LoadCreatePage() {
             $("#createoredit").html(data)
         },
         error: function (xhr, ajaxOptions, thrownError) {
-            aler('');
+            aler('Error loading creat form');
         }
     });
 }
@@ -148,7 +148,7 @@ function LoadEditPage(subjectId) {
 
     $.ajax({
         type: "GET",
-        url: '/Teacher/UpsertSubject/' + subjectId,
+        url: '/Subject/UpsertSubject/' + subjectId,
         cache: false,
         success: function (data) {
             $("#createoredit").html(data);

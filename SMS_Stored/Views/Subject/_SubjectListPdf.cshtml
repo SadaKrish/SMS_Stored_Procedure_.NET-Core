@@ -1,0 +1,51 @@
+﻿@model SMS.ViewModel.Subject.SubjectViewModel
+<style>
+    .pdf-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 10px;
+    }
+
+        .pdf-table th, .pdf-table td {
+            border: 1px solid #000;
+            padding: 4px;
+            text-align: center;
+            word-wrap: break-word;
+        }
+
+        .pdf-table th {
+            background-color: #cbf5ee;
+        }
+
+        .pdf-table td {
+            max-width: 100px; /* Adjust this as needed */
+        }
+</style>
+<div class="table-responsive">
+    <p></p>
+    <table class="pdf-table">
+        <thead>
+            <tr>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.SubjectList.First().SubjectCode)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.SubjectList.First().Name)</th>
+                <th style="background-color: #cbf5ee; text-align: center;">@Html.DisplayNameFor(model => model.SubjectList.First().IsEnable)</th>
+                <th style="background-color: #cbf5ee;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.SubjectList != null && Model.SubjectList.Any())
+            {
+                @foreach (var subject in Model.SubjectList)
+                {
+                    <tr data-student-id="@subject.SubjectID">
+                        <td>@subject.SubjectCode</td>
+                        <td>@subject.Name</td>
+                        <td>@subject.IsEnable</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+

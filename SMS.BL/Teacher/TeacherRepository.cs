@@ -87,7 +87,11 @@ namespace SMS.BL.Teacher
 
             return response;
         }
-
+        /// <summary>
+        /// Add or update the teacher details
+        /// </summary>
+        /// <param name="teacher"></param>
+        /// <returns></returns>
         public RepositoryResponse<bool> UpsertTeacher(TeacherBO teacher)
         {
             var response = new RepositoryResponse<bool>();

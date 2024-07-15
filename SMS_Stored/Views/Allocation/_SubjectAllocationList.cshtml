@@ -1,0 +1,64 @@
+﻿@model IEnumerable<SMS.ViewModel.Allocation.SubjectAllocationDetailViewModel>
+
+<div class="table-responsive">
+    <table id="subjectAllocationList" class="table table-bordered table-striped" style="text-align:center; width: 100%;">
+        <thead style="text-align:center;">
+            <tr>
+                <th style="background-color: #cbf5ee; text-align: center;">Subject Details</th>
+                <th style="background-color: #cbf5ee; text-align: center;">Teacher Details</th>
+                <th style="background-color: #cbf5ee; text-align: center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var subject in Model)
+                {
+                    if (subject.Teachers != null && subject.Teachers.Any())
+                    {
+                        var subjectDetail = $"{subject.SubjectCode} - {subject.SubjectName}";
+
+                        var isFirstTeacher = true; // To check if it's the first teacher
+
+                        foreach (var teacher in subject.Teachers)
+                        {
+                            var teacherDetail = $"{teacher.TeacherRegNo} - {teacher.DisplayName}";
+                            var subjectAllocationId = teacher.SubjectAllocationID;
+
+                            <tr>
+                                @if (isFirstTeacher)
+                                {
+                                    <td rowspan="@subject.Teachers.Count">@subjectDetail</td>
+                                    isFirstTeacher = false;
+                                }
+                                <td>@teacherDetail</td>
+                                <td>
+                                    @if (teacher.IsAllocated)
+                                    {
+                                        <span class="badge bg-success">Allocated</span>
+                                    }
+                                    else
+                                    {
+                                        <!-- Edit and Delete Icons -->
+                                        <a class="btn" style="background-color:#cbf5ee;" href="javascript:void(0);" onclick="LoadEditPage(@subjectAllocationId)">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <a class="btn" style="background-color:#cbf5ee;" href="javascript:void(0);" onclick="Delete(@subjectAllocationId)">
+                                            <i class="bi bi-trash" style="color:red;"></i>
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="3">No records found.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

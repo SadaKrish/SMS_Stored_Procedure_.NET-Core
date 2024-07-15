@@ -1,0 +1,117 @@
+﻿@model SMS.Model.Teacher_Subject_Allocation.Teacher_Subject_AllocationBO
+@{
+    ViewBag.Title = "Upsert";
+}
+<link href="~/css/formstyle.css" rel="stylesheet" />
+
+<form id="subjectAllocationForm" asp-action="UpsertSubjectAllocation" asp-controller="Allocation" method="post" data-ajax="true" data-ajax-mode="replace" data-ajax-update="#createoredit">
+    <div class="container d-flex justify-content-center align-items-center w-100 m-2" style="min-height: calc(100vh - 100px); margin-bottom: 50px;">
+        <div class="card p-4 fr-div" style="max-width: 500px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); border-radius: 10px;">
+            @*<div class="col-md-12 ">*@
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @Html.AntiForgeryToken()
+
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.SubjectAllocationID)
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="row form-group d-flex">
+                <div class="col-md-4">
+                    @Html.LabelFor(model => model.TeacherID, htmlAttributes: new { @class = "control-label required" })
+                </div>
+                <div class="col-md p-2">
+                    @Html.DropDownListFor(model => model.TeacherID, ViewBag.TeacherList as SelectList, "Select Teacher", new { @class = "form-select", id = "teacherDropdown" })
+
+                    @Html.ValidationMessageFor(model => model.TeacherID, "", new { @class = "text-danger" })
+                    <span id="teacherDropdownError" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row form-group d-flex">
+                <div class="col-md-4">
+                    @Html.LabelFor(model => model.SubjectID, htmlAttributes: new { @class = "control-label required" })
+                </div>
+                <div class="col-md p-2">
+                    @Html.DropDownListFor(model => model.SubjectID, ViewBag.SubjectList as SelectList, "Select Subject", new { @class = "form-select", id = "subjectDropdown" })
+                    @Html.ValidationMessageFor(model => model.SubjectID, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group align-content-center">
+                <input type="submit" value="@(Model.SubjectAllocationID== 0 ? "Add" : "Update")" class="btn btn-primary" style="font-size:14px;" />
+                <button id="back-to-list" class="btn btn btn-secondary m-4" onclick="LoadList()">Back</button>
+            </div>
+
+
+        </div>
+    </div>
+</form>
+
+@{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+<script>
+    $(document).ready(function () {
+        // console.log("Hello");
+        $('.required').append('<span style="color: red">*</span>');
+    });
+    $(document).ready(function () {
+       
+
+        $('#subjectAllocationForm').submit(function (event) {
+            event.preventDefault();
+
+            var form = $(this);
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function (response) {
+                    addSubjectAllocationSuccess(response);
+                },
+                error: function (xhr, status, error) {
+                    addSubjectAllocationFailure(xhr, status, error);
+                }
+            });
+        });
+        //client side validation check
+        // $('#studentRegNo').change(function () {
+        //     var regNo = $(this).val();
+        //     $.ajax({
+        //         url: '@Url.Action("CheckStudentRegNoExists", "Student")',
+        //         type: 'GET',
+        //         data: { regNo: regNo },
+        //         success: function (data) {
+        //             if (data.exists) {
+        //                 $('#regNoExistsMsg').text('Registration number already exists.');
+        //             } else {
+        //                 $('#regNoExistsMsg').text('');
+        //             }
+        //         },
+        //         error: function () {
+        //             $('#regNoExistsMsg').text('Error checking registration number.');
+        //         }
+        //     });
+        // });
+        // $('#studentDisplayName').change(function () {
+        //     var displayName = $(this).val();
+        //     $.ajax({
+        //         url: '@Url.Action("CheckStudentDisplayNameExists", "Student")',
+        //         type: 'GET',
+        //         data: { displayName: displayName },
+        //         success: function (data) {
+        //             if (data.exists) {
+        //                 $('#displayNameExistsMsg').text('Display Name already exists.');
+        //             } else {
+        //                 $('#displayNameExistsMsg').text('');
+        //             }
+        //         },
+        //         error: function () {
+        //             $('#displayNameExistsMsg').text('Error checking display name.');
+        //         }
+        //     });
+        // });
+       
+    });
+
+</script>

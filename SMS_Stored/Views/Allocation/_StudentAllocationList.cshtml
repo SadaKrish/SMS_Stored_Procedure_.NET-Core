@@ -1,0 +1,71 @@
+﻿@model IEnumerable<SMS.ViewModel.Allocation.StudentAllocationGroupedViewModel>
+
+<div class="table-responsive">
+    <table id="studentAllocationList" class="table table-bordered table-striped" style="text-align:center; width: 100%;">
+        <thead style="text-align:center;">
+            <tr>
+                <th style="background-color: #cbf5ee; text-align: center;">Student Details</th>
+                <th style="background-color: #cbf5ee; text-align: center;">Subject Details</th>
+                <th style="background-color: #cbf5ee; text-align: center;">Teacher Details</th>
+                <th style="background-color: #cbf5ee; text-align: center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var student in Model)
+                {
+                    var subjectCount = student.Subjects.Count();
+                    foreach (var subject in student.Subjects)
+                    {
+                        var subjectDetail = $"{subject.SubjectCode} - {subject.SubjectName}";
+                        var teacherCount = subject.TeacherAllocations.Count();
+
+                        var isFirstSubject = student.Subjects.IndexOf(subject) == 0;
+                        var subjectRowspan = teacherCount;
+
+                        foreach (var teacher in subject.TeacherAllocations)
+                        {
+                            <tr>
+                                @if (isFirstSubject)
+                                {
+                                    <td rowspan="@subjectCount">
+                                        @student.StudentRegNo - @student.DisplayName
+                                    </td>
+                                }
+
+                                @if (subject.TeacherAllocations.IndexOf(teacher) == 0)
+                                {
+                                    <td rowspan="@subjectRowspan">
+                                        @subjectDetail
+                                    </td>
+                                }
+
+                                <td>@teacher.TeacherRegNo - @teacher.DisplayName</td>
+                                <td>
+                                    <!-- Directly show delete icon for each teacher -->
+                                    <a class="btn btn-danger" href="javascript:void(0);" onclick="Delete(@student.StudentAllocationID)">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4">No records found.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function Delete(studentAllocationID) {
+        // Implement the delete functionality here, e.g., using AJAX
+        console.log("Delete student allocation with ID:", studentAllocationID);
+    }
+</script>

@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SMS.Model\SMS.Model.csproj" />
+    <ProjectReference Include="..\SMS.ViewModel\SMS.ViewModel.csproj" />
   </ItemGroup>
 
 </Project>

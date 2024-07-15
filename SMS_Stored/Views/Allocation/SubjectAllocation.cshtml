@@ -1,0 +1,47 @@
+﻿@model IEnumerable<SMS.ViewModel.Allocation.SubjectAllocationDetailViewModel>
+@{
+    ViewBag.Title = "SubjectAllocation";
+}
+
+
+<link href="~/css/modulestylesheet.css" rel="stylesheet" />
+<style>
+
+    #subjectAllocationList_wrapper {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+</style>
+<div class="card panel-default">
+    <div class="panel-heading">
+        <h2 class="card-header">Subject Allocation</h2>
+    </div>
+    <div class="panel-body card-body">
+
+        <div class="controls-container">
+            <a class="btn btn-outline-primary" style="margin: 10px; background-color: #cbf5ee;" onclick="LoadCreatePage()" id="button"> <i class="bi bi-plus"></i>  Add New Allocation</a>
+
+            <div class="search-container">
+                <div class="searchForm">
+                    @await Html.PartialAsync("_SubjectAllocationSearchView")
+                </div>
+            </div>
+
+        </div>
+
+        <div id="subjectsAllocationList">
+            @await Html.PartialAsync("_SubjectAllocationList",Model)
+        </div>
+    </div>
+</div>
+@*<button id="back-to-list" class="btn m-4" onclick="LoadList()" style="display: none;">Back</button>*@
+<div class="col-md-4" id="createoredit">
+    <!--Partial view-->
+
+
+</div>
+
+@section scripts {
+   
+    <script src="~/js/subjectAllocation.js" asp-append-version="true"></script>
+}
