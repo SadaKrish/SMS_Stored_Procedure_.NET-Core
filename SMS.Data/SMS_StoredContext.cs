@@ -28,7 +28,7 @@ namespace SMS.Data
         public DbSet<SubjectBO> Subjects { get; set; }
 
         public DbSet<Teacher_Subject_AllocationBO> Teacher_Subject_Allocations { get; set; }
-        public DbSet<Student_Subject_Teacher_AllocationBO>student_Subject_Teacher_Allocations { get; set; }
+        public DbSet<Student_Subject_Teacher_AllocationBO>Student_Subject_Teacher_Allocations { get; set; }
 
        // public DbSet<EnabledTeacherViewModel> EnabledTeachers { get; set; }
 

@@ -87,7 +87,7 @@ function searchSubjectAllocations() {
                 $('#subjectsAllocationList').html('<p clas="text-center">No matching data found.</p>');
             } else {
                 $('#subjectsAllocationList').html(response);
-                initializeDataTable();
+                //initializeDataTable();
                // updateTeacherStatuses();
             }
         },

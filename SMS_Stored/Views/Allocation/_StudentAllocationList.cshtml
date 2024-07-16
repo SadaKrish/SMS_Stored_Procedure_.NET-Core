@@ -19,6 +19,7 @@
                     foreach (var subject in student.Subjects)
                     {
                         var subjectDetail = $"{subject.SubjectCode} - {subject.SubjectName}";
+                        
                         var teacherCount = subject.TeacherAllocations.Count();
 
                         var isFirstSubject = student.Subjects.IndexOf(subject) == 0;
@@ -31,6 +32,14 @@
                                 {
                                     <td rowspan="@subjectCount">
                                         @student.StudentRegNo - @student.DisplayName
+                                        @if (student.IsEnable)
+                                        {
+                                        <span class="badge bg-success">Allocated</span>
+                                        }
+                                        else
+                                        {
+                                        <span class="badge bg-danger">Not Allocated</span>
+                                        }
                                     </td>
                                 }
 
@@ -44,8 +53,8 @@
                                 <td>@teacher.TeacherRegNo - @teacher.DisplayName</td>
                                 <td>
                                     <!-- Directly show delete icon for each teacher -->
-                                    <a class="btn btn-danger" href="javascript:void(0);" onclick="Delete(@student.StudentAllocationID)">
-                                        <i class="bi bi-trash"></i>
+                                    <a class="btn" style="background-color:#cbf5ee;" href="javascript:void(0);" onclick="Delete(@teacher.StudentAllocationID)">
+                                        <i class="bi bi-trash" style="color:red;"></i>
                                     </a>
                                 </td>
                             </tr>
@@ -64,8 +73,5 @@
 </div>
 
 <script>
-    function Delete(studentAllocationID) {
-        // Implement the delete functionality here, e.g., using AJAX
-        console.log("Delete student allocation with ID:", studentAllocationID);
-    }
+    
 </script>

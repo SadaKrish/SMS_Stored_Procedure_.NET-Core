@@ -8,30 +8,31 @@ $(document).ready(function () {
 
     $("#search").on("submit", function (event) {
         event.preventDefault();
-        searchSubjectAllocations();
+        searchStudentAllocations();
     });
 
     $('#customSearchBox').on('keyup', function () {
-        var searchTerm = $(this).val().trim();
-        if (searchTerm.length >= 1) {
-            searchSubjectAllocationsOptions();
-        } else if (searchTerm.length === 0) {
-            loadStudentAllocationList()();
-        }
-        searchSubjectAllocations();
+        //var searchTerm = $(this).val().trim();
+        //if (searchTerm.length >= 1) {
+        //    searchStudentAllocationsOptions();
+        //} else if (searchTerm.length === 0) {
+        //    loadStudentAllocationList()();
+        //}
+        searchStudentAllocations();
     });
 
     $('#searchButton').on('click', function () {
-        searchSubjectAllocations();
+        searchStudentAllocations();
     });
 
 
 });
 function loadStudentAllocationList() {
+    var status = $('#filterStatus').val();
     $.ajax({
         url: '/Allocation/GetStudentAllocations',
         type: 'GET',
-
+        data: { status: status },
         success: function (data) {
             $('#studentsAllocationList').html(data);
             //initializeDataTable();
@@ -77,17 +78,17 @@ function searchSubjectAllocationsOptions() {
     });
 }
 
-function searchSubjectAllocations() {
+function searchStudentAllocations() {
     $.ajax({
-        url: '/Allocation/SearchSubjectAllocation',
+        url: '/Allocation/SearchStudentAllocation',
         type: 'POST',
         data: $('#search').serialize(),
         success: function (response) {
             if ($(response).find('tbody tr').length === 0) {
-                $('#subjectsAllocationList').html('<p clas="text-center">No matching data found.</p>');
+                $('#studentsAllocationList').html('<p clas="text-center">No matching data found.</p>');
             } else {
-                $('#subjectsAllocationList').html(response);
-                initializeDataTable();
+                $('#studentsAllocationList').html(response);
+               // initializeDataTable();
                 // updateTeacherStatuses();
             }
         },
@@ -97,7 +98,7 @@ function searchSubjectAllocations() {
     });
 }
 function initializeDataTable() {
-    $('#subjectAllocationList').DataTable({
+    $('#studentAllocationList').DataTable({
         "pageLength": 5,
         "lengthMenu": [5, 10, 15, 20, 25],
         "searching": false,
@@ -111,7 +112,7 @@ function initializeDataTable() {
 }
 
 function LoadCreatePage() {
-    $("#subjectAllocationList").hide();
+    $("#studentAllocationList").hide();
     $("#button").hide();
     $('.panel-body').hide();
     $("#back-to-list").show();
@@ -119,7 +120,7 @@ function LoadCreatePage() {
 
     $.ajax({
         type: "GET",
-        url: '/Allocation/UpsertSubjectAllocation',
+        url: '/Allocation/AddStudentAllocation',
         data: {},
         cache: false,
         async: false,
@@ -127,35 +128,35 @@ function LoadCreatePage() {
             $("#createoredit").html(data);
         },
         error: function (xhr, ajaxOptions, thrownError) {
-            alert('An error occurred: ' + thrownError); // Changed from aler to alert
+            alert('An error occurred: ' + thrownError); 
         }
     });
 }
 
 
 //load edit page
-function LoadEditPage(subjectAllocationId) {
-    console.log('Loading edit page for ID:', subjectAllocationId);
+//function LoadEditPage(studentAllocationId) {
+//    console.log('Loading edit page for ID:', studentAllocationId);
 
-    $("#subjectAllocationList").hide();
-    $("#button").hide();
-    $('.panel-body').hide();
-    $("#back-to-list").show();
-    $('.footer').hide();
+//    $("#studentAllocationList").hide();
+//    $("#button").hide();
+//    $('.panel-body').hide();
+//    $("#back-to-list").show();
+//    $('.footer').hide();
 
-    $.ajax({
-        type: "GET",
-        url: '/Allocation/UpsertSubjectAllocation/' + subjectAllocationId,
-        cache: false,
-        success: function (data) {
-            $("#createoredit").html(data);
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            alert('Error loading edit form');
-        }
-    });
-}
-function addSubjectAllocationSuccess(response) {
+//    $.ajax({
+//        type: "GET",
+//        url: '/Allocation/UpsertStudentAllocation/' + subjectAllocationId,
+//        cache: false,
+//        success: function (data) {
+//            $("#createoredit").html(data);
+//        },
+//        error: function (xhr, ajaxOptions, thrownError) {
+//            alert('Error loading edit form');
+//        }
+//    });
+//}
+function addStudentAllocationSuccess(response) {
     if (response.success) {
         Swal.fire({
             icon: 'success',
@@ -173,24 +174,30 @@ function addSubjectAllocationSuccess(response) {
                 $('.footer').show();
                 $("#back-to-list").hide();
 
-                loadSubjectAllocationList();
+                loadStudentAllocationList();
             }
         });
     } else {
 
-        alert('An error occurred');
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: response.message || 'An error occurred. Please try again.',
+            showCancelButton: false,
+            confirmButtonText: 'OK'
+        });
 
     }
 }
 
-function addSubjectAllocationFailure(error) {
+function addStudentAllocationFailure(error) {
     console.error(error);
     Swal.fire('Error!', 'An error occurred while adding the student', 'error');
 }
 //back button actions
 
 function LoadList() {
-    $("#subjectAllocationList").show();
+    $("#studentAllocationList").show();
     $('#button').show();
     $('#back-to-list').hide();
     $("#createoredit").empty();
@@ -220,7 +227,7 @@ function Delete(id) {
                 url: url,
                 success: function (data) {
                     if (data.success) {
-                        loadSubjectAllocationList();
+                        loadStudentAllocationList();
 
                         Swal.fire({
                             title: 'Deleted!',

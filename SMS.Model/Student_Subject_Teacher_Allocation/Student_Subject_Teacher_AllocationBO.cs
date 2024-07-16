@@ -14,7 +14,7 @@ namespace SMS.Model.Student_Subject_Teacher_Allocation
         [Required(ErrorMessage = "Teacher is required")]
         public long TeacherID;
         [Key]
-        public long StudentAllocationID { set; get; }
+        public long? StudentAllocationID { set; get; }
         [Required(ErrorMessage = "Student is required")]
         public long StudentID { get; set; }
         

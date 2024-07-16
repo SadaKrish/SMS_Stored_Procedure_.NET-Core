@@ -2,21 +2,9 @@
 ///
 /// </summary>
 /// <author>Sadakshini</author>
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlTypes;
-using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Threading.Tasks;
-using Azure;
-using Microsoft.Extensions.Logging;
 using NLog;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using SMS.BL.Student.Interface;
 using SMS.Model.Student;
 using SMS.ViewModel.ErrorResponse;

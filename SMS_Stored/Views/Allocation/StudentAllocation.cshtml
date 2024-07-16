@@ -15,8 +15,8 @@
             <div class="col-md-6">
                 <a class="btn btn-outline-primary" style="margin: 10px; background-color: #cbf5ee;" onclick="LoadCreatePage()" id="button"> <i class="bi bi-plus"></i>  Add New Subject</a>
 
-                <a href="@Url.Action("ExportToExcel", "Subject")" class="btn btn-outline-primary" style="margin: 10px; background-color: #cbf5ee;">Download Excel<i class="bi bi-file-excel"></i> </a>
-                <a href="@Url.Action("ExportToPdf", "Subject", new { status = "all" })" class="btn btn-outline-primary" style="margin: 10px; background-color: #cbf5ee;">Download PDF <i class="bi bi-file-pdf"></i></a>
+             @*    <a href="@Url.Action("ExportToExcel", "Subject")" class="btn btn-outline-primary" style="margin: 10px; background-color: #cbf5ee;">Download Excel<i class="bi bi-file-excel"></i> </a>
+                <a href="@Url.Action("ExportToPdf", "Subject", new { status = "all" })" class="btn btn-outline-primary" style="margin: 10px; background-color: #cbf5ee;">Download PDF <i class="bi bi-file-pdf"></i></a> *@
             </div>
 
 
@@ -24,12 +24,12 @@
                 <div class="row">
                     <div class="col-md-8">
                         <div id="filterView">
-                            @* @await Html.PartialAsync("_SubjectFilterView") *@
+                             @await Html.PartialAsync("_StudentAllocationFilterView") 
                         </div>
                     </div>
                     <div class="col-md-4 justify-content-end">
                         <div class="searchForm">
-                           @*  @await Html.PartialAsync("_SubjectSearchView") *@
+                            @await Html.PartialAsync("_StudentAllocationSearchView")
                         </div>
                     </div>
                 </div>
