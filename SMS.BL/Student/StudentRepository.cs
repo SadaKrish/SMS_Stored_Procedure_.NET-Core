@@ -340,6 +340,7 @@ namespace SMS.BL.Student
                 var message = (string)messageParam.Value;
                 response.Data=(bool)successParam.Value;
                 response.Success = true;
+                response.Messages.Add(message);
             }
             catch (Exception ex)
             {
